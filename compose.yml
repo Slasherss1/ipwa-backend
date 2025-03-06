@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    ports:
+      - "12230:8080"
+    environment:
+      - ORIGIN=CHANGE_ME
+      - SECRET=CHANGE_ME
+    depends_on:
+      - mongodb
+    volumes:
+      - ./config/:/app/config/
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    expose:
+      - 27017
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongodb:/data/db
+volumes:
+  mongodb:
