@@ -4,7 +4,7 @@ services:
     ports:
       - "12230:8080"
     environment:
-      - ORIGIN=CHANGE_ME
+      - DOMAIN=CHANGE_ME
       - SECRET=CHANGE_ME
     depends_on:
       - mongodb

@@ -12,7 +12,7 @@ import routes from "./routes/index";
 import process from "node:process"
 const connectionString = process.env.ATLAS_URI || "mongodb://mongodb:27017/ipwa";
 
-if (!process.env.ORIGIN) {
+if (!process.env.DOMAIN) {
     console.log("CORS origin undefined")
     process.exit(1)
 }
@@ -35,7 +35,7 @@ var app = express();
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(cors({
-    origin: ["http://localhost:4200", "http://localhost:3000", process.env.ORIGIN,],
+    origin: ["http://localhost:4200", "http://localhost:3000", `htt[s://${process.env.DOMAIN}`,],
     credentials: true
 }))
 app.use(session({
