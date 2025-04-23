@@ -200,6 +200,14 @@ menuRouter.get('/:id/votes/:m', async (req, res) => {
     })
 })
 
+menuRouter.delete('/:id', async (req, res) => {
+    if (await Menu.findByIdAndDelete(req.params.id)) {
+        res.send({status: 200}).end()
+    } else {
+        res.sendStatus(404)
+    }
+})
+
 menuRouter.use('/editor', editorRouter)
 
 export {menuRouter};
