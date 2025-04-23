@@ -6,6 +6,7 @@ import Menu from "@schemas/Menu"
 import Vote from "@schemas/Vote"
 import capability, { Features } from "@/capability"
 import { editorRouter } from "./editor"
+import usettings from "@/usettings"
 
 const menuRouter = Router()
 
@@ -61,7 +62,7 @@ menuRouter.get('/print', async (req, res) => {
         var meals = await Menu.find({day: {$gte: start, $lte: end}}, undefined, {sort: {day: 1}})
         var doc = meals.map(s => `<tr>
     <th>${dayName(s.day)}<br>${s.day.getDate()}.${s.day.getMonth()}.${s.day.getFullYear()}r.<br>${s.dayTitle}</th>
-    <td>${s.sn.fancy.join('<br>')}<br>${s.sn.second}</td>
+    <td>${usettings.settings.menu.defaultItems.sn.join('<br>')}<br>${s.sn.fancy.join('<br>')}<br>${s.sn.second}</td>
     <td>
         Z: ${s.ob.soup}<br>
         V: ${s.ob.vege}<br>
@@ -70,9 +71,9 @@ menuRouter.get('/print', async (req, res) => {
         ${s.ob.drink}<br>
         ${s.ob.other.join('<br>')}
     </td>
-    <td>${s.day.getUTCDay() == 5 ? "<b>Kolacja w domu!</b>" : s.kol}</td>
+    <td>${s.day.getUTCDay() == 5 ? "<b>Kolacja w domu!</b>" : `${usettings.settings.menu.defaultItems.kol.join('<br>')}<br>${s.kol}`}</td>
 </tr>`)
-        var html = `<html><head><meta charset="UTF-8"><style>table,th,td{border: 1px solid;}td{line-height: 1.5;}</style></head><body><table><caption>Jadłospis dekadowy</caption><thead><tr><th>Dzień</th><th>Śniadanie</th><th>Obiad</th><th>Kolacja</th></tr></thead><tbody>${doc.join('\n')}</tbody></table></body></html>`
+        var html = `<html><head><meta charset="UTF-8"><style>table,th,td{border: 0.4ch solid;}td{line-height: 1.5;}</style></head><body><table><caption>Jadłospis dekadowy</caption><thead><tr><th>Dzień</th><th>Śniadanie</th><th>Obiad</th><th>Kolacja</th></tr></thead><tbody>${doc.join('\n')}</tbody></table></body></html>`
         res.type('html').send(html)
     } else {
         res.status(400).end()
