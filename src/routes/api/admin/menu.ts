@@ -64,8 +64,8 @@ menuRouter.get('/print', async (req, res) => {
     <th>${dayName(s.day)}<br>${s.day.getDate()}.${s.day.getMonth()}.${s.day.getFullYear()}r.<br>${s.dayTitle}</th>
     <td>${usettings.settings.menu.defaultItems.sn.join('<br>')}<br>${s.sn.fancy.join('<br>')}<br>${s.sn.second}</td>
     <td>
-        Z: ${s.ob.soup}<br>
-        V: ${s.ob.vege}<br>
+        <b>Z:</b> ${s.ob.soup}<br>
+        <b>V:</b> ${s.ob.vege}<br>
         ${s.ob.meal}<br>
         ${s.ob.condiments.length != 0 ? s.ob.condiments.join('<br>') + "<br>" : ""}
         ${s.ob.drink}<br>
