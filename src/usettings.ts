@@ -26,7 +26,7 @@ class UOptions {
     }
 
     private save() {
-        writeFileSync("./config/usettings.json", JSON.stringify(this.settings, undefined, 2))
+        writeFileSync("./config/usettings.json", JSON.stringify(this._settings, undefined, 2))
     }
     
     reload() {

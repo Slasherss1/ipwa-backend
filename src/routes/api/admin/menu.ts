@@ -73,7 +73,7 @@ menuRouter.get('/print', async (req, res) => {
     </td>
     <td>${s.day.getUTCDay() == 5 ? "<b>Kolacja w domu!</b>" : `${usettings.settings.menu.defaultItems.kol.join('<br>')}<br>${s.kol}`}</td>
 </tr>`)
-        var html = `<html><head><meta charset="UTF-8"><style>table,th,td{border: 0.4ch solid;}td{line-height: 1.5;}</style></head><body><table><caption>Jadłospis dekadowy</caption><thead><tr><th>Dzień</th><th>Śniadanie</th><th>Obiad</th><th>Kolacja</th></tr></thead><tbody>${doc.join('\n')}</tbody></table></body></html>`
+        var html = `<html><head><meta charset="UTF-8"><style>table,th,td{border: 0.4ch solid;}td{line-height: 1;}</style></head><body><table><caption>Jadłospis dekadowy</caption><thead><tr><th>Dzień</th><th>Śniadanie</th><th>Obiad</th><th>Kolacja</th></tr></thead><tbody>${doc.join('\n')}</tbody></table></body></html>`
         res.type('html').send(html)
     } else {
         res.status(400).end()
