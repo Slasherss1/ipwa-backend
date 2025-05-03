@@ -3,12 +3,14 @@ import { Perms, adminPerm } from "@/utility";
 import capability, { Features } from "@/capability";
 import usettings from "@/usettings";
 import Grade from "@schemas/Grade";
+import User from "@/schemas/User";
+import attendence from "@/attendence";
 
 const cleanRouter = Router()
 cleanRouter.use(adminPerm(Perms.Clean))
 cleanRouter.use(capability.mw(Features.Clean))
 
-cleanRouter.get("/:date/:room", async (req, res) => {
+cleanRouter.get("/:date([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)/:room", async (req, res) => {
     res.send(await Grade.findOne({
         date: new Date(req.params.date),
         room: req.params.room
@@ -66,6 +68,22 @@ cleanRouter.get('/config', (req, res) => {
         rooms: usettings.settings.rooms,
         things: usettings.settings.cleanThings
     })
+})
+
+cleanRouter.get('/attendence/:room', async (req, res) => {
+    res.send({
+        users: await User.find({room: Number(req.params.room)}, {fname: true, surname: true, _id: true}),
+        attendence: attendence.getRoom(req.params.room)
+    })
+})
+
+cleanRouter.post('/attendence/:room', async (req, res) => {
+    attendence.setRoom(req.params.room, req.body)
+    res.send({status: 200})
+})
+
+cleanRouter.get('/attendenceSummary', async (req, res) => {
+    res.send(attendence.summary())
 })
 
 export {cleanRouter}

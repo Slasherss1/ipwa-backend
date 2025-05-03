@@ -11,7 +11,7 @@ settingsRouter.get('/', (req, res) => {
 })
 
 settingsRouter.post('/', (req, res) => {
-    usettings.settings = project(req.body, {keyrooms: true, cleanThings: true, rooms: true})
+    usettings.settings = project(req.body, {keyrooms: true, cleanThings: true, rooms: true, menu: true})
     res.send({status: 200})
 })
 

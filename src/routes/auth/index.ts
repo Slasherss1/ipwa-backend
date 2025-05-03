@@ -52,7 +52,7 @@ authRouter.get("/check", islogged, (req, res, next) => {
             res.status(401).send("Your account has been locked.")
         })
     }
-    res.send({"admin": req.user.admin, "features": cap.flags, "room": req.user.room, "menu": {"defaultItems": usettings.settings.menu.defaultItems}})
+    res.send({"admin": req.user.admin, "features": cap.flags, "vapid": usettings.settings.vapid, "room": req.user.room, "menu": {"defaultItems": usettings.settings.menu.defaultItems}})
 })
 
 export { authRouter };
