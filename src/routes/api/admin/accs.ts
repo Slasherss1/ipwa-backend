@@ -1,17 +1,19 @@
 import User from "@schemas/User";
 import { Router } from "express"
 import { Perms, adminCond, adminPerm } from "@/utility";
+import capability from "@/capability";
+import Group from "@/schemas/Group";
 
 const accsRouter = Router()
 
 accsRouter.use(adminPerm(Perms.Accs))
 
 accsRouter.get('/', async (req, res)=> {
-    if (req.user.admin) {
-        res.send(await User.find({"uname": {"$ne": req.user.uname}}, {pass: 0}))
-        return
+    var data = {
+        users: await User.find({"uname": {"$ne": req.user.uname}}, {pass: 0}),
+        groups: capability.settings.groups ? await Group.find() : undefined
     }
-    res.send(await User.find({"uname": {"$ne": req.user.uname}}, {pass: 0, admin: 0}))
+    res.send(data)
 })
 
 accsRouter.post('/', async (req, res)=> {
@@ -45,7 +47,7 @@ accsRouter.put('/:id', async (req, res)=> {
                 if (adminCond(req.body.flags, Perms.Superadmin)) {
                     res.status(400).send("Cannot set superadmin")
                 } else {
-                    await user.set({uname: req.body.uname, room: req.body.room, admin: req.body.flags, fname: req.body.fname, surname: req.body.surname}).save()
+                    await user.set({uname: req.body.uname, room: req.body.room, admin: req.body.flags, fname: req.body.fname, surname: req.body.surname, groups: req.body.groups}).save()
                     res.send({status: 200})
                 }
             }

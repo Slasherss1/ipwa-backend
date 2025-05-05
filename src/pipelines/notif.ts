@@ -82,70 +82,7 @@ function allNotif() {
 }
 
 function groupNotif(group: string) {
-  var pipeline: PipelineStage[] = [
-    {
-      $match:
-        {
-          _id: new Types.ObjectId(group)
-        }
-    },
-    {
-      $graphLookup:
-        {
-          from: "logins",
-          startWith: "$rooms",
-          connectFromField: "rooms",
-          connectToField: "room",
-          as: "logins",
-        },
-    },
-    {
-      $set: {
-        unames: {
-          $function: {
-            body: "function (arg, arg2) { if (!arg2) arg2 = []; return [...arg2,...arg.map((s) => s.uname)];}",
-            args: ["$logins", "$unames"],
-            lang: "js",
-          },
-        },
-      },
-    },
-    {
-      $unwind:
-        {
-          path: "$unames",
-        },
-    },
-    {
-      $graphLookup:
-        {
-          from: "notifications",
-          startWith: "$unames",
-          connectFromField: "unames",
-          connectToField: "uname",
-          as: "notif",
-        },
-    },
-    {
-      $project:
-        {
-          notif: 1,
-        },
-    },
-    {
-      $unwind:
-        {
-          path: "$notif",
-        },
-    },
-    {
-      $replaceRoot:
-        {
-          newRoot: "$notif",
-        },
-    },
-  ]
-  return pipeline
+  return
 }
 
 export { userNotif, roomNotif, allNotif, groupNotif }

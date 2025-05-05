@@ -25,7 +25,7 @@ declare global {
             uname: string;
             admin?: number;
             locked?: boolean;
-            room?: number
+            room?: string
         }
     }
 }
