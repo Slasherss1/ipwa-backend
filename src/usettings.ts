@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 interface IUSettings {
     keyrooms: string[];
-    rooms: number[];
+    rooms: string[];
     cleanThings: string[];
     menu: {
         defaultItems: {

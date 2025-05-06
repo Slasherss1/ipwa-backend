@@ -38,19 +38,19 @@ cleanRouter.get("/summary/:start/:stop", async (req, res) => {
         }
     })
     data = data.map(v => v.toJSON())
-    var byRoom: {[room: number]: any[]} = {}
+    var byRoom: {[room: string]: any[]} = {}
     data.forEach((v) => {
         let roomarray = byRoom[v.room] ? byRoom[v.room] : [];
         byRoom[v.room] = [...roomarray, {...v, room: undefined}]
     })
-    var stat: {room: number, avg: number}[] = []
+    var stat: {room: string, avg: number}[] = []
     for (let i in byRoom) {
         var sum: number = 0
         for (let j of byRoom[i]) {
             sum += j.grade
         }
         let avrg = sum/byRoom[i].length
-        stat.push({room: Number.parseInt(i), avg: avrg})
+        stat.push({room: i, avg: avrg})
     }
     res.send(stat)
 })
@@ -72,7 +72,7 @@ cleanRouter.get('/config', (req, res) => {
 
 cleanRouter.get('/attendence/:room', async (req, res) => {
     res.send({
-        users: await User.find({room: Number(req.params.room)}, {fname: true, surname: true, _id: true}),
+        users: await User.find({room: req.params.room}, {fname: true, surname: true, _id: true}),
         attendence: attendence.getRoom(req.params.room)
     })
 })

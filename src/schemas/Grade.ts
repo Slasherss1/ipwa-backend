@@ -9,7 +9,7 @@ interface IGrade {
     grade?: number;
     date: Date;
     gradeDate?: Date;
-    room: number;
+    room: string;
     notes?: GradeNote[];
     tips: string;
 }
@@ -18,7 +18,7 @@ const gradeSchema = new Schema<IGrade>({
     grade: Number,
     date: {type: Date, required: true},
     gradeDate: Date,
-    room: {type: Number, required: true},
+    room: {type: String, required: true},
     notes: [Object],
     tips: String,
 })

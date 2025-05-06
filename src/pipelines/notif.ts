@@ -11,7 +11,7 @@ function userNotif(uname: string) {
   return pipeline
 }
 
-function roomNotif(room: number) {
+function roomNotif(room: string) {
   var pipeline: PipelineStage[] = [
     {
       $lookup: {

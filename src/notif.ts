@@ -41,7 +41,7 @@ export class NotifcationHelper {
             user: async (uname: string) => {
                 return await this.send(message, await Notification.aggregate(userNotif(uname))) 
             },
-            room: async (room: number) => {
+            room: async (room: string) => {
                 return await this.send(message, await Notification.aggregate(roomNotif(room)))
             },
             group: async (group: string) => {

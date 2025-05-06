@@ -21,7 +21,7 @@ notifRouter.post("/send", async (req, res) => {
             result = await message.user(recp);
             break;
         case "room":
-            recp = req.body.recp.room as number
+            recp = req.body.recp.room as string
             result = await message.room(recp)
             break;
         case "all":
