@@ -14,7 +14,7 @@ router.use('/admin', adminRouter)
 router.use('/auth', authRouter)
 
 router.post("/notif", islogged, capability.mw(Features.Notif), async (req, res) => {
-    var obj = {user: new Schema.ObjectId(req.user.uname), ...req.body}
+    var obj = {user: req.user._id, ...req.body}
     await Notification.findOneAndUpdate(obj, obj, {upsert: true})
     res.send({"status": 200})
 })
