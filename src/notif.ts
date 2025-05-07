@@ -1,15 +1,16 @@
-import { PushSubscription, RequestOptions, SendResult, sendNotification } from "web-push";
-import { readFileSync } from "fs";
+import { PushSubscription, RequestOptions, SendResult, VapidKeys, generateVAPIDKeys, sendNotification } from "web-push";
+import { readFileSync, writeFileSync } from "fs";
 import Notification from "./schemas/Notification";
 import { allNotif, groupNotif, roomNotif, userNotif } from "./pipelines/notif";
+import vapidKeys from "./vapidKeys";
 
 export class NotifcationHelper {
     private options: RequestOptions
     constructor () {
-        let keys = JSON.parse(readFileSync("./config/keys.json", 'utf-8'))
+        let keys: VapidKeys = vapidKeys.keys
         this.options = {
             vapidDetails: {
-                subject: "CHANGE ME",
+                subject: `https://${process.env.DOMAIN}`,
                 privateKey: keys.privateKey,
                 publicKey: keys.publicKey
             }
@@ -46,9 +47,6 @@ export class NotifcationHelper {
             },
             group: async (group: string) => {
                 return await this.send(message, [])
-            },
-            withRoom: async () => {
-                return await this.send(message, await Notification.aggregate(allNotif()))
             }
         }
     }

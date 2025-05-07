@@ -8,9 +8,6 @@ interface IUSettings {
             sn: string[];
             kol: string[];
         }
-    },
-    vapid: {
-        
     }
 }
 

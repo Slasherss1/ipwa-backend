@@ -24,10 +24,6 @@ notifRouter.post("/send", async (req, res) => {
             recp = req.body.recp.room as string
             result = await message.room(recp)
             break;
-        case "all":
-            recp = "all"
-            result = await message.withRoom()
-            break;
         case "group":
             if (!capability.settings.groups) return res.sendStatus(406).end()
             recp = req.body.recp.group as string
