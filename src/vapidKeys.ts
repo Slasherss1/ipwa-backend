@@ -16,7 +16,7 @@ class VapidKeysSettings {
     }
 
     private save() {
-        writeFileSync("./config/usettings.json", JSON.stringify(this._keys, undefined, 2))
+        writeFileSync("./config/keys.json", JSON.stringify(this._keys, undefined, 2))
     }
     
     reload() {
