@@ -13,20 +13,20 @@ notifRouter.use(capability.mw(Features.Notif))
 
 notifRouter.post("/send", async (req, res) => {
     const message = nh.simpleMessage(req.body.title, req.body.body)
-    let recp: string | number
+    let recp: string
     let result;
     switch (req.body.recp.type) {
         case "uname":
-            recp = req.body.recp.uname as string
+            recp = req.body.recp.uname
             result = await message.user(recp);
             break;
         case "room":
-            recp = req.body.recp.room as string
+            recp = req.body.recp.room
             result = await message.room(recp)
             break;
         case "group":
             if (!capability.settings.groups) return res.sendStatus(406).end()
-            recp = req.body.recp.group as string
+            recp = req.body.recp.group
             result = await message.group(recp)
             break;
         default:

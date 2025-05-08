@@ -1,8 +1,8 @@
-import { ObjectId, Schema, model } from "mongoose"
+import { Schema, Types, model } from "mongoose"
 
 interface IKey {
     room: string;
-    whom: ObjectId;
+    whom: Types.ObjectId;
     borrow: Date;
     tb?: Date;
 }

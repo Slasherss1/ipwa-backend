@@ -1,8 +1,8 @@
-import { PushSubscription, RequestOptions, SendResult, VapidKeys, generateVAPIDKeys, sendNotification } from "web-push";
-import { readFileSync, writeFileSync } from "fs";
+import { PushSubscription, RequestOptions, VapidKeys, sendNotification } from "web-push";
 import Notification from "./schemas/Notification";
-import { allNotif, groupNotif, roomNotif, userNotif } from "./pipelines/notif";
 import vapidKeys from "./vapidKeys";
+import { Types } from "mongoose";
+import { IUser } from "./schemas/User";
 
 export class NotifcationHelper {
     private options: RequestOptions
@@ -40,13 +40,13 @@ export class NotifcationHelper {
     private rcpt(message: string) {
         return {
             user: async (uname: string) => {
-                return await this.send(message, await Notification.aggregate(userNotif(uname))) 
+                return await this.send(message, await this.findUserNotif(uname)) 
             },
             room: async (room: string) => {
-                return await this.send(message, await Notification.aggregate(roomNotif(room)))
+                return await this.send(message, await this.findRoomNotif(room))
             },
             group: async (group: string) => {
-                return await this.send(message, [])
+                return await this.send(message, await this.findGroupNotif(group))
             }
         }
     }
@@ -55,4 +55,18 @@ export class NotifcationHelper {
         return this.rcpt(JSON.stringify({notification: {title: title, body: body}}))
     }
 
+    async findUserNotif(uname: string): Promise<Array<any>> {
+        var notif = (await Notification.find().populate<{user: Pick<IUser, 'uname'>}>('user', 'uname').exec()).filter(val => val.user.uname == uname)
+        return notif
+    }
+
+    async findRoomNotif(room: string): Promise<Array<any>> {
+        var notif = (await Notification.find().populate<{user: Pick<IUser, 'room'>}>('user', 'room').exec()).filter(val => val.user.room == room)
+        return notif
+    }
+
+    async findGroupNotif(groupId: string): Promise<Array<any>>  {
+        var notif = (await Notification.find().populate<{user: Pick<IUser, 'groups'>}>('user').exec()).filter(val => val.user.groups.find(x => x == new Types.ObjectId(groupId)))
+        return notif
+    }
 }

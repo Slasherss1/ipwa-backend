@@ -1,8 +1,8 @@
-import mongoose, { ObjectId, Schema } from "mongoose"
+import mongoose, { Types, Schema } from "mongoose"
 
 // TODO: Unify `fname` and `surename` into single field
 
-interface IUser {
+export interface IUser {
     uname: string;
     pass: string;
     room?: string;
@@ -10,7 +10,7 @@ interface IUser {
     locked?: boolean;
     fname?: string;
     surname?: string;
-    groups: ObjectId[];
+    groups: Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>({
