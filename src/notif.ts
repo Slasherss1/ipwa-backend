@@ -1,15 +1,16 @@
-import { PushSubscription, RequestOptions, SendResult, sendNotification } from "web-push";
-import { readFileSync } from "fs";
+import { PushSubscription, RequestOptions, VapidKeys, sendNotification } from "web-push";
 import Notification from "./schemas/Notification";
-import { allNotif, groupNotif, roomNotif, userNotif } from "./pipelines/notif";
+import vapidKeys from "./vapidKeys";
+import { Types } from "mongoose";
+import { IUser } from "./schemas/User";
 
 export class NotifcationHelper {
     private options: RequestOptions
     constructor () {
-        let keys = JSON.parse(readFileSync("./config/keys.json", 'utf-8'))
+        let keys: VapidKeys = vapidKeys.keys
         this.options = {
             vapidDetails: {
-                subject: "CHANGE ME",
+                subject: `https://${process.env.DOMAIN}`,
                 privateKey: keys.privateKey,
                 publicKey: keys.publicKey
             }
@@ -39,16 +40,13 @@ export class NotifcationHelper {
     private rcpt(message: string) {
         return {
             user: async (uname: string) => {
-                return await this.send(message, await Notification.aggregate(userNotif(uname))) 
+                return await this.send(message, await this.findUserNotif(uname)) 
             },
             room: async (room: string) => {
-                return await this.send(message, await Notification.aggregate(roomNotif(room)))
+                return await this.send(message, await this.findRoomNotif(room))
             },
             group: async (group: string) => {
-                return await this.send(message, [])
-            },
-            withRoom: async () => {
-                return await this.send(message, await Notification.aggregate(allNotif()))
+                return await this.send(message, await this.findGroupNotif(group))
             }
         }
     }
@@ -57,4 +55,18 @@ export class NotifcationHelper {
         return this.rcpt(JSON.stringify({notification: {title: title, body: body}}))
     }
 
+    async findUserNotif(uname: string): Promise<Array<any>> {
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'uname'>}>('user', 'uname').exec()
+        return notif.filter(val => val.user.uname == uname)
+    }
+
+    async findRoomNotif(room: string): Promise<Array<any>> {
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'room'>}>('user', 'room').exec()
+        return notif.filter(val => val.user.room == room)
+    }
+
+    async findGroupNotif(groupId: string): Promise<Array<any>>  {
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'groups'>}>('user', 'groups').exec()
+        return notif.filter(val => val.user.groups.find(x => x.toString() == groupId))
+    }
 }

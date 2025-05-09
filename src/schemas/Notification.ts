@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose"
+import mongoose, { Types, Schema } from "mongoose"
 
 interface INotification {
     endpoint: string;
@@ -6,7 +6,7 @@ interface INotification {
         auth: string;
         p256dh: string;
     };
-    uname: string
+    user: Types.ObjectId
     expirationTime?: number
 }
 
@@ -16,7 +16,7 @@ const notifSchema = new Schema<INotification>({
         auth: String,
         p256dh: String,
     },
-    uname: {type: String, required: true},
+    user: {type: Schema.ObjectId, required: true, ref: "logins"},
     expirationTime: Number
 })
 

@@ -4,6 +4,7 @@ import { islogged } from "@/utility";
 import { adminRouter } from "./api/adminRouter";
 import { appRouter } from "./api/appRouter";
 import { authRouter } from "./auth/index";
+import { Schema } from 'mongoose'
 import capability, { Features } from "@/capability";
 
 const router = Router();
@@ -13,7 +14,7 @@ router.use('/admin', adminRouter)
 router.use('/auth', authRouter)
 
 router.post("/notif", islogged, capability.mw(Features.Notif), async (req, res) => {
-    var obj = {uname: req.user.uname, ...req.body}
+    var obj = {user: req.user._id, ...req.body}
     await Notification.findOneAndUpdate(obj, obj, {upsert: true})
     res.send({"status": 200})
 })

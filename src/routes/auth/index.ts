@@ -5,6 +5,8 @@ import { islogged } from "@/utility";
 import bcrypt from "bcryptjs"
 import cap from "@/capability";
 import usettings from "@/usettings";
+import { readFileSync } from "node:fs";
+import vapidKeys from "@/vapidKeys";
 
 const authRouter = Router()
 
@@ -52,7 +54,7 @@ authRouter.get("/check", islogged, (req, res, next) => {
             res.status(401).send("Your account has been locked.")
         })
     }
-    res.send({"admin": req.user.admin, "features": cap.flags, "vapid": usettings.settings.vapid, "room": req.user.room, "menu": {"defaultItems": usettings.settings.menu.defaultItems}})
+    res.send({"admin": req.user.admin, "features": cap.flags, "room": req.user.room, "menu": {"defaultItems": usettings.settings.menu.defaultItems}, "vapid": vapidKeys.keys.publicKey})
 })
 
 export { authRouter };
