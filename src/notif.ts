@@ -56,17 +56,17 @@ export class NotifcationHelper {
     }
 
     async findUserNotif(uname: string): Promise<Array<any>> {
-        var notif = (await Notification.find().populate<{user: Pick<IUser, 'uname'>}>('user', 'uname').exec()).filter(val => val.user.uname == uname)
-        return notif
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'uname'>}>('user', 'uname').exec()
+        return notif.filter(val => val.user.uname == uname)
     }
 
     async findRoomNotif(room: string): Promise<Array<any>> {
-        var notif = (await Notification.find().populate<{user: Pick<IUser, 'room'>}>('user', 'room').exec()).filter(val => val.user.room == room)
-        return notif
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'room'>}>('user', 'room').exec()
+        return notif.filter(val => val.user.room == room)
     }
 
     async findGroupNotif(groupId: string): Promise<Array<any>>  {
-        var notif = (await Notification.find().populate<{user: Pick<IUser, 'groups'>}>('user').exec()).filter(val => val.user.groups.find(x => x == new Types.ObjectId(groupId)))
-        return notif
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'groups'>}>('user', 'groups').exec()
+        return notif.filter(val => val.user.groups.find(x => x.toString() == groupId))
     }
 }
