@@ -1,6 +1,6 @@
 import { Schema, Types, model } from "mongoose"
 
-interface IKey {
+export interface IKey {
     room: string;
     whom: Types.ObjectId;
     borrow: Date;
