@@ -1,7 +1,6 @@
-import { PushSubscription, RequestOptions, VapidKeys, sendNotification } from "web-push";
+import { PushSubscription, RequestOptions, VapidKeys, WebPushError, sendNotification } from "web-push";
 import Notification from "./schemas/Notification";
 import vapidKeys from "./vapidKeys";
-import { Types } from "mongoose";
 import { IUser } from "./schemas/User";
 
 export class NotifcationHelper {
@@ -26,12 +25,23 @@ export class NotifcationHelper {
                 result = await sendNotification(v, message, this.options)
                 count++
             } catch (error) {
-                if (error.statusCode == 410) {
-                    console.log("GONE")
-                    await Notification.findOneAndDelete({endpoint: v.endpoint, keys: v.keys})
-                    subslen--
+                if (error instanceof WebPushError) {
+                    switch (error.statusCode) {
+                        case 410:
+                            console.log("GONE")
+                            await Notification.findOneAndDelete({endpoint: v.endpoint, keys: v.keys})
+                            subslen--
+                            break;
+                        case 404:
+                            console.warn("NOT FOUND", error.message)
+                            await Notification.findOneAndDelete(v)
+                            subslen--
+                            break;
+                        default:
+                            console.log(error)
+                            break;
+                    }
                 }
-                else console.log(error)
             }
         }
         return {sent: count, possible: subslen}
