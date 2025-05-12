@@ -54,8 +54,8 @@ app.use(passport.session())
 //#region Passport strategies initialization
 passport.use("normal",new LocalStrategy(async function verify(uname,pass,done) {
     let query = await User.findOne({uname: uname.toLowerCase()})
-    if (query.locked == true) return done(null, false)
     if (query) {
+        if (query.locked == true) return done(null, false)
         if (await bcrypt.compare(pass, query.pass)) {
             return done(null, query)
         } else done(null, false)
