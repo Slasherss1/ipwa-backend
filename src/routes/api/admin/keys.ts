@@ -2,7 +2,7 @@ import { Router } from "express";
 import capability, { Features } from "@/capability";
 import Key from "@schemas/Key";
 import usettings from "@/usettings";
-import User from "@schemas/User";
+import User, { IUser } from "@schemas/User";
 import { Perms, adminPerm } from "@/utility";
 
 const keysRouter = Router()
@@ -11,7 +11,7 @@ keysRouter.use(capability.mw(Features.Key))
 keysRouter.use(adminPerm(Perms.Key))
 
 keysRouter.get("/", async (req, res) => {
-    var keys = await Key.find({}, {}, {sort: {borrow: -1}}).populate("whom", {uname: 1, _id: 1, room: 1})
+    var keys = await Key.find({}, undefined, {sort: {borrow: -1}}).populate<Pick<IUser, "uname" | "room"> & {_id: string}>({path: "whom", select: { _id: 1, uname: 1, room: 1}})
     res.send(keys)
 })
 

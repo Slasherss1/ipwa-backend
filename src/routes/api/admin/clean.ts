@@ -82,6 +82,11 @@ cleanRouter.post('/attendence/:room', async (req, res) => {
     res.send({status: 200})
 })
 
+cleanRouter.delete('/attendence/:room', async (req, res) => {
+    attendence.clearRoom(req.params.room)
+    res.send({status: 200})
+})
+
 cleanRouter.get('/attendenceSummary', async (req, res) => {
     res.send(attendence.summary())
 })
