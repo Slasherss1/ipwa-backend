@@ -6,12 +6,45 @@ import bcrypt from "bcryptjs"
 import cap from "@/helpers/capability";
 import usettings from "@/helpers/usettings";
 import vapidKeys from "@/vapidKeys";
+import { IVerifyOptions } from "passport-local";
 
 const authRouter = Router()
 
-authRouter.post("/login", passport.authenticate('normal'), (req, res) => {
-    if (req.user.admin != null) res.send({status: 200, admin: req.user.admin})
-    else res.send({status: 200})
+authRouter.post("/login", (req, res) => {
+    passport.authenticate('normal', (err: {type: string, message: string} | null, user?: Express.User | false, options?: IVerifyOptions) => {
+        if (user) {
+            req.login(user, (error) => {
+                if (error) {
+                    res.status(500).send(error)
+                } else {
+                    if (req.user.admin != null) {
+                        res.send({status: 200, admin: req.user.admin})
+                    } else {
+                        res.send({status: 200})
+                    }
+                }
+            })
+        } else {
+            if (err) {
+                switch (err.type) {
+                    case "unf":
+                        res.status(404).send({status: 404, message: "Zła nazwa użytkownika lub hasło."})
+                        break;
+                    case "timeout":
+                        res.status(403).send({status: 403, message: err.message})
+                        break;
+                    case "locked":
+                        res.status(403).send({status: 403, message: err.message})
+                        break;
+                    default:
+                        res.status(500).send({status: 500, message: err.message})
+                        break;
+                    }
+            } else {
+                res.status(403).send({status: 403, message: "Brak hasła lub loginu."})
+            }
+        }
+    })(req, res)
 })
 
 authRouter.post("/chpass", islogged, async (req,res) => {

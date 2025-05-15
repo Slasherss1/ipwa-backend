@@ -10,6 +10,7 @@ import mongoose from "mongoose"
 import User from "./schemas/User";
 import routes from "./routes/index";
 import process from "node:process"
+import security from "./helpers/security";
 const connectionString = process.env.ATLAS_URI || "mongodb://mongodb:27017/ipwa";
 
 if (!process.env.DOMAIN) {
@@ -55,12 +56,20 @@ app.use(passport.session())
 passport.use("normal",new LocalStrategy(async function verify(uname,pass,done) {
     let query = await User.findOne({uname: uname.toLowerCase()})
     if (query) {
-        if (query.locked == true) return done(null, false)
+        if (query.locked == true) return done({type: "locked", message: "Twoje konto jest zablokowane. Skontaktuj się z administratorem."}, false)
+        var timeout = security.check(query._id)
+        if (timeout) {
+            timeout = Math.ceil(timeout / 1000 / 60)
+            return done({type: "timeout", message: `Zbyt wiele nieudanych prób logowania. Odczekaj ${timeout} minut lub skontaktuj się z administratorem.`}, false)
+        }
         if (await bcrypt.compare(pass, query.pass)) {
             return done(null, query)
-        } else done(null, false)
+        } else {
+            security.addAttempt(query._id)
+            done({type: "unf"}, false)
+        }
     } else {
-        done(null, false)
+        done({type: "unf"}, false)
     }
 }))
 //#endregion
