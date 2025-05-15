@@ -4,8 +4,7 @@ import { islogged } from "@/utility";
 import { adminRouter } from "./api/adminRouter";
 import { appRouter } from "./api/appRouter";
 import { authRouter } from "./auth/index";
-import { Schema } from 'mongoose'
-import capability, { Features } from "@/capability";
+import capability, { Features } from "@/helpers/capability";
 
 const router = Router();
 

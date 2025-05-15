@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { Perms, adminPerm } from "@/utility";
-import capability, { Features } from "@/capability";
-import usettings from "@/usettings";
+import capability, { Features } from "@/helpers/capability";
+import usettings from "@/helpers/usettings";
 import Grade from "@schemas/Grade";
 import User from "@/schemas/User";
-import attendence from "@/attendence";
+import attendence from "@/helpers/attendence";
 
 const cleanRouter = Router()
 cleanRouter.use(adminPerm(Perms.Clean))

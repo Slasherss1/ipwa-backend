@@ -1,7 +1,7 @@
 import { Router } from "express";
 import News from "@schemas/News"
 import { Perms, adminPerm } from "@/utility";
-import capability, { Features } from "@/capability";
+import capability, { Features } from "@/helpers/capability";
 
 const newsRouter = Router()
 

@@ -1,7 +1,7 @@
 import User from "@schemas/User";
 import { Router } from "express"
 import { Perms, adminCond, adminPerm } from "@/utility";
-import capability from "@/capability";
+import capability from "@/helpers/capability";
 import Group from "@/schemas/Group";
 
 const accsRouter = Router()

@@ -1,7 +1,7 @@
 import Group from "@schemas/Group";
 import { Router } from "express"
 import { Perms, adminPerm } from "@/utility";
-import capability, { Features } from "@/capability";
+import capability, { Features } from "@/helpers/capability";
 
 const groupsRouter = Router()
 

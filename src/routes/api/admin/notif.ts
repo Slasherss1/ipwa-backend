@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Perms, adminPerm } from "@/utility";
 import Group from "@schemas/Group";
 import { NotifcationHelper } from "@/notif";
-import capability, { Features } from "@/capability";
+import capability, { Features } from "@/helpers/capability";
 
 const notifRouter = Router()
 

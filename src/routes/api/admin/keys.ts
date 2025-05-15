@@ -1,7 +1,7 @@
 import { Router } from "express";
-import capability, { Features } from "@/capability";
+import capability, { Features } from "@/helpers/capability";
 import Key from "@schemas/Key";
-import usettings from "@/usettings";
+import usettings from "@/helpers/usettings";
 import User, { IUser } from "@schemas/User";
 import { Perms, adminPerm } from "@/utility";
 

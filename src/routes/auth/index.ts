@@ -3,9 +3,8 @@ import passport from "passport";
 import User from "@schemas/User";
 import { islogged } from "@/utility";
 import bcrypt from "bcryptjs"
-import cap from "@/capability";
-import usettings from "@/usettings";
-import { readFileSync } from "node:fs";
+import cap from "@/helpers/capability";
+import usettings from "@/helpers/usettings";
 import vapidKeys from "@/vapidKeys";
 
 const authRouter = Router()

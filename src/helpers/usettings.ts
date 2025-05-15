@@ -8,6 +8,13 @@ interface IUSettings {
             sn: string[];
             kol: string[];
         }
+    },
+    security: {
+        loginTimeout: {
+            attempts: number;
+            time: number;
+            lockout: number; 
+        }
     }
 }
 
