@@ -36,7 +36,7 @@ var app = express();
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(cors({
-    origin: ["http://localhost:4200", "http://localhost:3000", `https://${process.env.DOMAIN}`,],
+    origin: ["http://localhost:4200", `https://${process.env.DOMAIN}`,],
     credentials: true
 }))
 app.use(session({
