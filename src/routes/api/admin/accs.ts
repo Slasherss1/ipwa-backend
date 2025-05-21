@@ -3,6 +3,8 @@ import { Router } from "express"
 import { Perms, adminCond, adminPerm } from "@/utility";
 import capability from "@/helpers/capability";
 import Group from "@/schemas/Group";
+import security from "@/helpers/security";
+import { Types } from "mongoose";
 
 const accsRouter = Router()
 
@@ -14,6 +16,13 @@ accsRouter.get('/', async (req, res)=> {
         groups: capability.settings.groups ? await Group.find() : undefined
     }
     res.send(data)
+})
+
+accsRouter.get('/:id', async (req, res) => {
+    res.send({
+        ...(await User.findById(req.params.id, {pass: 0})).toJSON(),
+        lockout: !!security.check(new Types.ObjectId(req.params.id))
+    })
 })
 
 accsRouter.post('/', async (req, res)=> {
@@ -79,6 +88,14 @@ accsRouter.delete('/:id', async (req, res) => {
         res.send({status: 200}).end()
     } else {
         res.sendStatus(404)
+    }
+})
+
+accsRouter.delete('/:id/lockout', async (req, res) => {
+    if (security.clearAcc(req.params.id)) {
+        res.send({status: 200}).end()
+    } else {
+        res.sendStatus(400)
     }
 })
 

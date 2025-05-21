@@ -11,6 +11,7 @@ export interface IUser {
     fname?: string;
     surname?: string;
     groups: Types.ObjectId[];
+    regDate: Date;
 }
 
 const userSchema = new Schema<IUser>({
@@ -21,7 +22,8 @@ const userSchema = new Schema<IUser>({
     locked: {type: Boolean, default: false},
     fname: String,
     surname: String,
-    groups: [{type: mongoose.Types.ObjectId, ref: "Group"}]
+    groups: [{type: mongoose.Types.ObjectId, ref: "Group"}],
+    regDate: {type: Date, default: Date.now}
 })
 
 export default mongoose.model("logins", userSchema)

@@ -48,6 +48,10 @@ class SecurityHelper {
             return false
         }
     }
+
+    clearAcc(userId: string) {
+        return this.onTimeout.delete(userId)
+    }
 }
 
 export default new SecurityHelper()
