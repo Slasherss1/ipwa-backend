@@ -12,18 +12,20 @@ export interface IUser {
     surname?: string;
     groups: Types.ObjectId[];
     regDate: Date;
+    defaultPage: string;
 }
 
 const userSchema = new Schema<IUser>({
     uname: {type: String, required: true},
     pass: {type: String, required: true, default: "$2y$10$wxDhf.XiXkmdKrFqYUEa0.F4Bf.pDykZaMmgjvyLyeRP3E/Xy0hbC"},
-    room: String,
+    room: {type: String, default: ""},
     admin: Number,
     locked: {type: Boolean, default: false},
-    fname: String,
-    surname: String,
+    fname: {type: String, default: ""},
+    surname: {type: String, default: ""},
     groups: [{type: mongoose.Types.ObjectId, ref: "Group"}],
-    regDate: {type: Date, default: Date.now}
+    regDate: {type: Date, default: Date.now},
+    defaultPage: {type: String, default: ""},
 })
 
 export default mongoose.model("logins", userSchema)

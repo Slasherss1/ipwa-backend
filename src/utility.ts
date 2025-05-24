@@ -8,7 +8,7 @@ var islogged = (req: Request, res: Response, next: NextFunction) => {
 }
 
 var isadmin = (req: Request, res: Response, next: NextFunction) => {
-    if (req.user.admin != null) {
+    if (req.user.admin) {
         return next()
     }
     res.sendStatus(401)

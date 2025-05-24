@@ -7,7 +7,7 @@ import session from "express-session";
 import bcrypt from 'bcryptjs';
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose"
-import User from "./schemas/User";
+import User, { IUser } from "./schemas/User";
 import routes from "./routes/index";
 import process from "node:process"
 import security from "./helpers/security";
@@ -20,13 +20,13 @@ if (!process.env.DOMAIN) {
 
 declare global {
     namespace Express {
-        export interface User {
+        export interface User extends IUser {
             _id: mongoose.Types.ObjectId;
-            pass: string;
-            uname: string;
-            admin?: number;
-            locked?: boolean;
-            room?: string
+            // pass: string;
+            // uname: string;
+            // admin?: number;
+            // locked?: boolean;
+            // room?: string
         }
     }
 }
@@ -87,7 +87,7 @@ passport.deserializeUser(async function(id, done) {
     }
 });
 
-app.listen(8080, async () => {
+var server = app.listen(8080, async () => {
     await mongoose.connect(connectionString);
     if (process.send) process.send("ready")
 })
@@ -95,5 +95,6 @@ app.listen(8080, async () => {
 app.use('/', routes)
 
 process.on('SIGINT', () => {
+    server.close()
     mongoose.disconnect().then(() => process.exit(0), () => process.exit(1))
 })

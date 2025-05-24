@@ -48,7 +48,7 @@ accsRouter.put('/:id', async (req, res)=> {
         res.status(404).send("User not found")
         return
     }
-    if (req.body.flags != undefined) {
+    if (req.body.flags) {
         if (adminCond(req.user.admin, Perms.Superadmin)) {
             if (adminCond(user.admin, Perms.Superadmin)) {
                 res.status(400).send("Cannot edit other superadmins")

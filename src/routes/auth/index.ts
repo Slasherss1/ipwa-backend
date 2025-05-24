@@ -17,11 +17,7 @@ authRouter.post("/login", (req, res) => {
                 if (error) {
                     res.status(500).send(error)
                 } else {
-                    if (req.user.admin != null) {
-                        res.send({status: 200, admin: req.user.admin})
-                    } else {
-                        res.send({status: 200})
-                    }
+                    res.send({status: 200, admin: req.user.admin || undefined, redirect: req.user.defaultPage})
                 }
             })
         } else {
@@ -83,10 +79,20 @@ authRouter.get("/check", islogged, (req, res, next) => {
     if (req.user.locked) {
         req.logout((err) => {
             if (err) next(err)
-            res.status(401).send("Your account has been locked.")
+            res.status(401).send({status: 401, message: "Your account has been locked."})
         })
     }
     res.send({"admin": req.user.admin, "features": cap.flags, "room": req.user.room, "menu": {"defaultItems": usettings.settings.menu.defaultItems}, "vapid": vapidKeys.keys.publicKey})
+})
+
+authRouter.put("/redirect", islogged, async (req, res) => {
+    if (["", "/", "/login", "/login/", "login"].find(v => v == req.body.redirect)) return res.status(400).send({status: 400, message: "Path in blacklist"})
+    const update = await User.findByIdAndUpdate(req.user._id, {defaultPage: req.body.redirect})
+    if (update) {
+        res.send({status: 200}).end()
+    } else {
+        res.status(500).send({status: 500}).end()
+    }
 })
 
 export { authRouter };
