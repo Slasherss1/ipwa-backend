@@ -1,7 +1,5 @@
 import mongoose, { Types, Schema } from "mongoose"
 
-// TODO: Unify `fname` and `surename` into single field
-
 export interface IUser {
     uname: string;
     pass: string;
