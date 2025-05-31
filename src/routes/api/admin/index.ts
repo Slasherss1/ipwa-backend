@@ -1,15 +1,15 @@
 import { Router } from "express";
 import { islogged, isadmin} from "@/utility";
-import { newsRouter } from "./admin/news";
-import { accsRouter } from "./admin/accs";
-import { menuRouter } from "./admin/menu";
-import { groupsRouter } from "./admin/groups";
-import { notifRouter } from "./admin/notif";
-import { keysRouter } from "./admin/keys";
-import { cleanRouter } from "./admin/clean";
-import { settingsRouter } from "./admin/settings";
+import { newsRouter } from "./news";
+import { accsRouter } from "./accs";
+import { menuRouter } from "./menu";
+import { groupsRouter } from "./groups";
+import { notifRouter } from "./notif";
+import { keysRouter } from "./keys";
+import { cleanRouter } from "./clean";
+import { settingsRouter } from "./settings";
 
-const adminRouter = Router()
+export const adminRouter = Router()
 
 adminRouter.use(islogged, isadmin)
 adminRouter.use('/news', newsRouter)
@@ -25,5 +25,3 @@ adminRouter.get('/usearch', (req, res) => {
     // TODO: Add search
     res.send([req.query['q']])
 })
-
-export {adminRouter};

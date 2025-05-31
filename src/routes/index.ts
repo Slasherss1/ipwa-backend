@@ -1,16 +1,14 @@
 import { Router } from "express";
 import Notification from "@schemas/Notification";
 import { islogged } from "@/utility";
-import { adminRouter } from "./api/adminRouter";
-import { appRouter } from "./api/appRouter";
 import { authRouter } from "./auth/index";
 import capability, { Features } from "@/helpers/capability";
 import mongoose from "mongoose";
+import { apiRouter } from "./api";
 
 const router = Router();
 
-router.use('/app', appRouter)
-router.use('/admin', adminRouter)
+router.use('/', apiRouter)
 router.use('/auth', authRouter)
 
 router.get("/healthcheck", async (req, res) => {
@@ -26,5 +24,7 @@ router.post("/notif", islogged, capability.mw(Features.Notif), async (req, res) 
     await Notification.findOneAndUpdate(obj, obj, {upsert: true})
     res.send({"status": 200})
 })
+
+router.use("/", apiRouter)
 
 export default router;

@@ -6,6 +6,7 @@ import capability, { Features } from "@/helpers/capability";
 import Inbox from "@/schemas/Inbox";
 import { Types } from "mongoose";
 import { IUser } from "@/schemas/User";
+import { outboxRouter } from "./outbox";
 
 const notifRouter = Router()
 
@@ -49,19 +50,10 @@ notifRouter.post("/send", async (req: Request<undefined, PushResult, PushSendBod
     res.send(result)
 })
 
-notifRouter.get("/outbox", async (req, res: Response) => {
-    var result = await Inbox.find({}, {}, {sort: {sentDate: -1}}).populate<{rcpt: IUser & {_id: Types.ObjectId}}>("rcpt", ['fname', 'surname', 'uname', '_id', 'room']).exec()
-    var final = result.map(v => {
-        return {
-            ...v.toJSON(),
-            ack: v.ack.length
-        }
-    })
-    res.send(final)
-})
-
 notifRouter.get("/groups", async (req, res) => {
     res.send(await Group.find({}, { name: 1, _id: 1 }))
 })
+
+notifRouter.use("/outbox", outboxRouter)
 
 export { notifRouter }
