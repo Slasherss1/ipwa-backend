@@ -18,10 +18,10 @@ export interface PushResult {
 export class Message {
     private options: RequestOptions
     private message: { notification: SimpleMessage }
-    private rcptType: "uname" | "room" | "group"
+    private rcptType: "uid" | "room" | "group"
     private rcpt: string
     
-    constructor (title: string, body: string, rcptType: "uname" | "room" | "group", rcpt: string) {
+    constructor (title: string, body: string, rcptType: "uid" | "room" | "group", rcpt: string) {
         let keys: VapidKeys = vapidKeys.keys
         this.options = {
             vapidDetails: {
@@ -35,9 +35,9 @@ export class Message {
         this.rcpt = rcpt
     }
 
-    async findUserNotif(uname: string) {
+    async findUserNotif(uid: string) {
         var notif = await Notification.find().populate<{user: Pick<IUser, 'uname'> & {_id: Types.ObjectId}}>('user', ['uname', '_id']).exec()
-        return notif.filter(val => val.user.uname == uname)
+        return notif.filter(val => val.user._id.toString() == uid)
     }
 
     async findRoomNotif(room: string) {
@@ -54,9 +54,9 @@ export class Message {
         var subscriptions
         var rcptIds: Types.ObjectId[]
         switch (this.rcptType) {
-            case "uname":
+            case "uid":
                 subscriptions = await this.findUserNotif(this.rcpt)
-                rcptIds = (await User.find({uname: this.rcpt})).map(v => v._id)
+                rcptIds = [new Types.ObjectId(this.rcpt)]
                 break;
             case "room":
                 subscriptions = await this.findRoomNotif(this.rcpt)

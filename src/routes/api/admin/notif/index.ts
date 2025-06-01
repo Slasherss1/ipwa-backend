@@ -3,9 +3,6 @@ import { Perms, adminPerm } from "@/utility";
 import Group from "@schemas/Group";
 import { PushResult, Message } from "@/notif";
 import capability, { Features } from "@/helpers/capability";
-import Inbox from "@/schemas/Inbox";
-import { Types } from "mongoose";
-import { IUser } from "@/schemas/User";
 import { outboxRouter } from "./outbox";
 
 const notifRouter = Router()
@@ -14,7 +11,7 @@ notifRouter.use(adminPerm(Perms.Notif))
 notifRouter.use(capability.mw(Features.Notif))
 
 type PushSendBody = {recp:
-    {type: "uname", uname: string} |
+    {type: "uid", uid: string} |
     {type: "room", room: string} |
     {type: "group", group: string},
     title: string,
@@ -24,8 +21,8 @@ type PushSendBody = {recp:
 notifRouter.post("/send", async (req: Request<undefined, PushResult, PushSendBody>, res: Response<PushResult>) => {
     let recp: string
     switch (req.body.recp.type) {
-        case "uname":
-            recp = req.body.recp.uname
+        case "uid":
+            recp = req.body.recp.uid
             break;
         case "room":
             recp = req.body.recp.room
