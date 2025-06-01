@@ -1,5 +1,7 @@
+import { project } from "@/utility";
 import { readFileSync, writeFileSync } from "node:fs";
-interface IUSettings {
+
+export interface IUSettings {
     keyrooms: string[];
     rooms: string[];
     cleanThings: string[];
@@ -24,7 +26,7 @@ class UOptions {
         return this._settings;
     }
     public set settings(value: IUSettings) {
-        this._settings = value;
+        this._settings = project<typeof value>(value, ['cleanThings', 'keyrooms', 'menu', 'rooms', 'security']) as typeof value
         this.save()
     }
 

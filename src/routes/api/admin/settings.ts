@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { adminPerm, Perms, project } from "@/utility";
+import { adminPerm, Perms } from "@/utility";
 import usettings from "@/helpers/usettings";
 
 export const settingsRouter = Router()
@@ -11,7 +11,7 @@ settingsRouter.get('/', (req, res) => {
 })
 
 settingsRouter.post('/', (req, res) => {
-    usettings.settings = project(req.body, {keyrooms: true, cleanThings: true, rooms: true, menu: true, security: true})
+    usettings.settings = req.body
     res.send({status: 200})
 })
 
