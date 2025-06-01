@@ -26,4 +26,6 @@ const userSchema = new Schema<IUser>({
     defaultPage: {type: String, default: ""},
 })
 
+userSchema.index({uname: "text", room: "text", fname: "text", surname: "text"}, {weights: {fname: 3, surname: 4, room: 2, uname: 1}, default_language: "none"})
+
 export default mongoose.model("logins", userSchema)
