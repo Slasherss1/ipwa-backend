@@ -88,7 +88,12 @@ cleanRouter.delete('/attendence/:room', async (req, res) => {
 })
 
 cleanRouter.get('/attendenceSummary', async (req, res) => {
-    res.send(attendence.summary())
+    var allRooms = usettings.settings.rooms
+    var graded = (await Grade.find({date: new Date().setUTCHours(24,0,0,0)})).map(v => v.room)
+    var ungraded = allRooms.filter(x => !graded.includes(x))
+    var summary = attendence.summary()
+    var unchecked: typeof summary = ungraded.filter(x => !summary.map(v => v.room).includes(x)).map(v => ({room: v, hours: [] as string[], notes: "Nie sprawdzono", auto: true}))
+    res.send([...summary, ...unchecked])
 })
 
 export {cleanRouter}
