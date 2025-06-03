@@ -1,11 +1,27 @@
-import { PushSubscription, RequestOptions, VapidKeys, WebPushError, sendNotification } from "web-push";
+import { RequestOptions, SendResult, VapidKeys, WebPushError, sendNotification } from "web-push";
 import Notification from "./schemas/Notification";
 import vapidKeys from "./vapidKeys";
-import { IUser } from "./schemas/User";
+import User, { IUser } from "./schemas/User";
+import Inbox from "./schemas/Inbox";
+import { Types } from "mongoose";
 
-export class NotifcationHelper {
+export interface SimpleMessage {
+    title: string;
+    body: string;
+}
+
+export interface PushResult {
+    sent: number;
+    possible: number;
+}
+
+export class Message {
     private options: RequestOptions
-    constructor () {
+    private message: { notification: SimpleMessage }
+    private rcptType: "uid" | "room" | "group"
+    private rcpt: string
+    
+    constructor (title: string, body: string, rcptType: "uid" | "room" | "group", rcpt: string) {
         let keys: VapidKeys = vapidKeys.keys
         this.options = {
             vapidDetails: {
@@ -14,27 +30,66 @@ export class NotifcationHelper {
                 publicKey: keys.publicKey
             }
         }
+        this.message = { notification: { title: title, body: body } }
+        this.rcptType = rcptType
+        this.rcpt = rcpt
     }
 
-    private async send(message: string, subscriptions: PushSubscription[]) {
+    async findUserNotif(uid: string) {
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'uname'> & {_id: Types.ObjectId}}>('user', ['uname', '_id']).exec()
+        return notif.filter(val => val.user._id.toString() == uid)
+    }
+
+    async findRoomNotif(room: string) {
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'room'> & {_id: Types.ObjectId}}>('user', ['room', '_id']).exec()
+        return notif.filter(val => val.user.room == room)
+    }
+
+    async findGroupNotif(groupId: string)  {
+        var notif = await Notification.find().populate<{user: Pick<IUser, 'groups'> & {_id: Types.ObjectId}}>('user', ['groups', '_id']).exec()
+        return notif.filter(val => val.user.groups.find(x => x.toString() == groupId))
+    }
+
+    public async send(): Promise<PushResult> {
+        var subscriptions
+        var rcptIds: Types.ObjectId[]
+        switch (this.rcptType) {
+            case "uid":
+                subscriptions = await this.findUserNotif(this.rcpt)
+                rcptIds = [new Types.ObjectId(this.rcpt)]
+                break;
+            case "room":
+                subscriptions = await this.findRoomNotif(this.rcpt)
+                rcptIds = (await User.find({room: this.rcpt})).map(v => v._id)
+                break;
+            case "group":
+                subscriptions = await this.findGroupNotif(this.rcpt)
+                rcptIds = (await User.find({groups: this.rcpt})).map(v => v._id)
+                break;
+            default:
+                throw new Error(`Wrong recipient type used: ${this.rcptType}`);
+        }
+
+        await Inbox.create({message: this.message.notification, rcpt: rcptIds})
+
         var count = 0;
         var subslen = subscriptions.length
         for (const v of subscriptions) {
-            var result
+            var result: SendResult
             try {
-                result = await sendNotification(v, message, this.options)
+                result = await sendNotification(v, JSON.stringify(this.message), this.options)
                 count++
             } catch (error) {
                 if (error instanceof WebPushError) {
                     switch (error.statusCode) {
                         case 410:
                             console.log("GONE")
-                            await Notification.findOneAndDelete({endpoint: v.endpoint, keys: v.keys})
+                            await Notification.findByIdAndRemove(v._id)
                             subslen--
                             break;
                         case 404:
                             console.warn("NOT FOUND", error.message)
-                            await Notification.findOneAndDelete(v)
+                            await Notification.findByIdAndRemove(v._id)
                             subslen--
                             break;
                         default:
@@ -44,39 +99,7 @@ export class NotifcationHelper {
                 }
             }
         }
+
         return {sent: count, possible: subslen}
-    }
-
-    private rcpt(message: string) {
-        return {
-            user: async (uname: string) => {
-                return await this.send(message, await this.findUserNotif(uname)) 
-            },
-            room: async (room: string) => {
-                return await this.send(message, await this.findRoomNotif(room))
-            },
-            group: async (group: string) => {
-                return await this.send(message, await this.findGroupNotif(group))
-            }
-        }
-    }
-    
-    simpleMessage(title: string, body: string) {
-        return this.rcpt(JSON.stringify({notification: {title: title, body: body}}))
-    }
-
-    async findUserNotif(uname: string): Promise<Array<any>> {
-        var notif = await Notification.find().populate<{user: Pick<IUser, 'uname'>}>('user', 'uname').exec()
-        return notif.filter(val => val.user.uname == uname)
-    }
-
-    async findRoomNotif(room: string): Promise<Array<any>> {
-        var notif = await Notification.find().populate<{user: Pick<IUser, 'room'>}>('user', 'room').exec()
-        return notif.filter(val => val.user.room == room)
-    }
-
-    async findGroupNotif(groupId: string): Promise<Array<any>>  {
-        var notif = await Notification.find().populate<{user: Pick<IUser, 'groups'>}>('user', 'groups').exec()
-        return notif.filter(val => val.user.groups.find(x => x.toString() == groupId))
     }
 }

@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { Perms, adminPerm } from "@/utility";
-import capability, { Features } from "@/capability";
-import usettings from "@/usettings";
+import capability, { Features } from "@/helpers/capability";
+import usettings from "@/helpers/usettings";
 import Grade from "@schemas/Grade";
 import User from "@/schemas/User";
-import attendence from "@/attendence";
+import attendence from "@/helpers/attendence";
 
 const cleanRouter = Router()
 cleanRouter.use(adminPerm(Perms.Clean))
@@ -88,7 +88,12 @@ cleanRouter.delete('/attendence/:room', async (req, res) => {
 })
 
 cleanRouter.get('/attendenceSummary', async (req, res) => {
-    res.send(attendence.summary())
+    var allRooms = usettings.settings.rooms
+    var graded = (await Grade.find({date: new Date().setUTCHours(24,0,0,0)})).map(v => v.room)
+    var ungraded = allRooms.filter(x => !graded.includes(x))
+    var summary = attendence.summary()
+    var unchecked: typeof summary = ungraded.filter(x => !summary.map(v => v.room).includes(x)).map(v => ({room: v, hours: [] as string[], notes: "Nie sprawdzono", auto: true}))
+    res.send([...summary, ...unchecked])
 })
 
 export {cleanRouter}

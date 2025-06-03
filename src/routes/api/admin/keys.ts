@@ -1,7 +1,7 @@
 import { Router } from "express";
-import capability, { Features } from "@/capability";
+import capability, { Features } from "@/helpers/capability";
 import Key from "@schemas/Key";
-import usettings from "@/usettings";
+import usettings from "@/helpers/usettings";
 import User, { IUser } from "@schemas/User";
 import { Perms, adminPerm } from "@/utility";
 
@@ -16,17 +16,15 @@ keysRouter.get("/", async (req, res) => {
 })
 
 keysRouter.post("/", async (req, res) => {
-    var newKey: {
-        room: string;
-        whom: string;
-    } = req.body
-    var user = await User.findOne({uname: newKey.whom})
-    if (user) {
-        newKey.whom = user._id.toString()
-    } else {
+    var user = await User.findById(req.body.whom._id)
+    if (!user) {
         return res.status(404).send("User not found").end()
     }
-    if (await Key.create(newKey)) {
+    const newKey = new Key({
+        room: req.body.room,
+        whom: user._id
+    })
+    if (await newKey.save()) {
         res.status(201).send({status: 201})
     } else {
         res.sendStatus(500)

@@ -4,12 +4,14 @@ import News from "@schemas/News";
 import Menu from "@schemas/Menu";
 import Vote from "@schemas/Vote";
 import { vote } from "@/pipelines/vote";
-import capability, { Features } from "@/capability";
+import capability, { Features } from "@/helpers/capability";
 import Key, { IKey } from "@schemas/Key";
-import usettings from "@/usettings";
+import usettings from "@/helpers/usettings";
 import Grade from "@schemas/Grade";
 import { createHash } from "node:crypto";
-const appRouter = Router();
+import Inbox from "@/schemas/Inbox";
+
+export const appRouter = Router();
 
 appRouter.use(islogged)
 
@@ -75,4 +77,26 @@ appRouter.get("/clean/:date", capability.mw(Features.Clean), async (req, res) =>
     }))
 })
 
-export {appRouter};
+appRouter.get("/notif/check", capability.mw(Features.Notif), async (req, res) => {
+    var result = await Inbox.find({rcpt: req.user._id, $nor: [{ack: req.user._id}]}, {message: 1, sentDate: 1})
+    if (result) {
+        res.send(result)
+    } else {
+        res.send([])
+    }
+})
+
+appRouter.post("/notif/:id/ack", capability.mw(Features.Notif), async (req, res) => {
+    var result = await Inbox.findById(req.params.id)
+    if (result) {
+        if (result.rcpt.includes(req.user._id) && !result.ack.includes(req.user._id)) {
+            result.ack.push(req.user._id)
+            await result.save({})
+            res.send({status: 200})
+        } else {
+            res.status(403).send({status: 401, message: "User doesn't have access or message already acknowledged"})
+        }
+    } else {
+        res.status(404).send({status: 404, message: "Message not found"})
+    }
+})

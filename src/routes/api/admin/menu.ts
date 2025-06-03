@@ -4,9 +4,9 @@ import multer from "multer"
 import * as XLSX from "xlsx"
 import Menu from "@schemas/Menu"
 import Vote from "@schemas/Vote"
-import capability, { Features } from "@/capability"
+import capability, { Features } from "@/helpers/capability"
 import { editorRouter } from "./editor"
-import usettings from "@/usettings"
+import usettings from "@/helpers/usettings"
 
 const menuRouter = Router()
 

@@ -25,14 +25,14 @@ class Attendence {
         this.attendence.delete(room)
     }
 
-    getRoom (room: string) {
+    getRoom (room: string): IAttendence | undefined {
         return this.attendence.get(room)
     }
 
     summary () {
-        var summary: {room: string, hours: string[], notes: string}[] = []
+        var summary: {room: string, hours: string[], notes: string, auto: boolean}[] = []
         this.attendence.forEach((v, k) => {
-            summary.push({room: k, hours: v.auto.map(i => i.hour), notes: v.notes})
+            summary.push({room: k, hours: v.auto.map(i => i.hour), notes: v.notes, auto: false})
         })
         return summary
     }
