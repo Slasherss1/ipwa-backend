@@ -38,18 +38,22 @@ var adminCond = (adminInt = 0, perm: Perms) => {
     return (adminInt & perm) == perm
 }
 
-export function project<T extends object>(obj: T | any, projection: (keyof T)[] | { [key in keyof T]: any}): Partial<T> {
+export function project<T extends object>(obj: T | any, projection?: (keyof T)[] | { [key in keyof T]: any}): Partial<T> {
     let obj2: Partial<T> = {}
-    if (projection instanceof Array) {
-        for (let key of projection) {
-            if (key in obj) obj2[key] = obj[key]
+    if (projection) {
+        if (projection instanceof Array) {
+            for (let key of projection) {
+                if (key in obj) obj2[key] = obj[key]
+            }
+        } else {
+            for (let key in projection) {
+                if (key in obj) obj2[key] = obj[key]
+            }
         }
+        return obj2
     } else {
-        for (let key in projection) {
-            if (key in obj) obj2[key] = obj[key]
-        }
+        return obj
     }
-    return obj2
 }
 
 export {islogged, isadmin, adminPerm, Perms, adminCond};

@@ -82,7 +82,7 @@ authRouter.get("/check", islogged, (req, res, next) => {
             res.status(401).send({status: 401, message: "Your account has been locked."})
         })
     }
-    res.send({"admin": req.user.admin, "features": cap.flags, "room": req.user.room, "menu": {"defaultItems": usettings.settings.menu.defaultItems}, "vapid": vapidKeys.keys.publicKey})
+    res.send({"admin": req.user.admin, "features": cap.flags, "room": req.user.room, "menu": {"defaultItems": usettings.value.menu.defaultItems}, "vapid": vapidKeys.keys.publicKey})
 })
 
 authRouter.put("/redirect", islogged, async (req, res) => {

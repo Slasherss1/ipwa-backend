@@ -37,8 +37,21 @@ class Settings {
     }
     
     public reloadSettings() {
-        this.settings = JSON.parse(readFileSync('./config/options.json', 'utf-8'))
-        this.optionsToFlags()    
+        try {
+            this.settings = JSON.parse(readFileSync('./config/options.json', 'utf-8'))
+            this.optionsToFlags()
+        } catch (error) {
+            if (error instanceof Error) {
+                if ('code' in error) {
+                    if (error.code == "ENOENT") {
+                        console.warn("WARNING: Capability file 'options.json' not found, enabling all modules.")
+                        console.info("INFO: This warning will dissapear in future release of this program.")
+                        this.settings = { clean: true, groups: true, key: true, menu: true, news: true, notif: true }
+                        this.optionsToFlags()
+                    }
+                }
+            }
+        }
     }
     
     public get flags() : number {

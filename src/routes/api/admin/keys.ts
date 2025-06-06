@@ -34,7 +34,7 @@ keysRouter.post("/", async (req, res) => {
 keysRouter.get("/available", async (req, res) => {
     var taken = await Key.find({tb: {$exists: false}}, {}, {sort: {borrow: -1}})
     var occ = Array.from(new Set(taken.map((v) => v.room)))
-    var all = Array.from(new Set(usettings.settings.keyrooms))
+    var all = Array.from(new Set(usettings.value.keyrooms))
     var free = all.filter(x => !occ.includes(x))
     res.send(free)
 })

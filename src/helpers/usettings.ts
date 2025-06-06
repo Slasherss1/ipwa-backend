@@ -1,5 +1,6 @@
 import { project } from "@/utility";
 import { readFileSync, writeFileSync } from "node:fs";
+import { FileHandler } from "./filehandler";
 
 export interface IUSettings {
     keyrooms: string[];
@@ -15,32 +16,32 @@ export interface IUSettings {
         loginTimeout: {
             attempts: number;
             time: number;
-            lockout: number; 
+            lockout: number;
         }
     }
 }
 
-class UOptions {
-    private _settings: IUSettings;
-    public get settings(): IUSettings {
-        return this._settings;
-    }
-    public set settings(value: IUSettings) {
-        this._settings = project<typeof value>(value, ['cleanThings', 'keyrooms', 'menu', 'rooms', 'security']) as typeof value
-        this.save()
-    }
-
+class UOptions extends FileHandler<IUSettings> {
     constructor() {
-        this.reload()
-    }
-
-    private save() {
-        writeFileSync("./config/usettings.json", JSON.stringify(this._settings, undefined, 2))
-    }
-    
-    reload() {
-        this.settings = JSON.parse(readFileSync("./config/usettings.json", {encoding: "utf-8"}))
-        console.log("Reloaded user settings");
+        const defaultSettings: IUSettings = {
+            keyrooms: [],
+            rooms: [],
+            cleanThings: [],
+            menu: {
+                defaultItems: {
+                    sn: [],
+                    kol: [],
+                }
+            },
+            security: {
+                loginTimeout: {
+                    attempts: 0,
+                    time: 0,
+                    lockout: 0
+                }
+            }
+        }
+        super("./config/usettings.json", {defaultContent: defaultSettings, name: "user settings", project: ['cleanThings', 'keyrooms', 'menu', 'rooms', 'security']})
     }
 }
 

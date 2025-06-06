@@ -20,11 +20,22 @@ class VapidKeysSettings {
     }
     
     reload() {
-        this._keys = JSON.parse(readFileSync("./config/keys.json", {encoding: "utf-8"}))
-        if (!(this._keys.privateKey && this._keys.publicKey)) {
-            this.keys = generateVAPIDKeys()
+        try {
+            this._keys = JSON.parse(readFileSync("./config/keys.json", {encoding: "utf-8"}))
+        } catch (error) {
+            if (error instanceof Error) {
+                if ('code' in error) {
+                    if (error.code === "ENOENT") {
+                        this.keys = generateVAPIDKeys();
+                    }
+                }
+            }
+        } finally {
+            if (!(this.keys.privateKey && this.keys.publicKey)) {
+                this.keys = generateVAPIDKeys()
+            }
+            console.log("Reloaded VAPID keys");
         }
-        console.log("Reloaded VAPID keys");
     }
 }
 

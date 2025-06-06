@@ -62,7 +62,7 @@ appRouter.post("/menu/:timestamp", capability.mw(Features.Menu), async (req, res
 appRouter.get("/keys", capability.mw(Features.Key), async (req, res) => {
     var keys = await Key.find<Pick<IKey, "room">>({tb: {$exists: false}}, {room: 1}, {sort: {room: 1}})
     var occ = keys.map(x=>x.room)
-    var all = usettings.settings.keyrooms
+    var all = usettings.value.keyrooms
     var free = all.filter(x=>!occ.includes(x)).sort().map(x => {
         return { room: x }
     })

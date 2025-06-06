@@ -62,7 +62,7 @@ menuRouter.get('/print', async (req, res) => {
         var meals = await Menu.find({day: {$gte: start, $lte: end}}, undefined, {sort: {day: 1}})
         var doc = meals.map(s => `<tr>
     <th>${dayName(s.day)}<br>${s.day.getDate()}.${s.day.getMonth()}.${s.day.getFullYear()}r.<br>${s.dayTitle}</th>
-    <td>${usettings.settings.menu.defaultItems.sn.join('<br>')}<br>${s.sn.fancy.join('<br>')}<br>${s.sn.second}</td>
+    <td>${usettings.value.menu.defaultItems.sn.join('<br>')}<br>${s.sn.fancy.join('<br>')}<br>${s.sn.second}</td>
     <td>
         <b>Z:</b> ${s.ob.soup}<br>
         <b>V:</b> ${s.ob.vege}<br>
@@ -71,7 +71,7 @@ menuRouter.get('/print', async (req, res) => {
         ${s.ob.drink}<br>
         ${s.ob.other.join('<br>')}
     </td>
-    <td>${s.day.getUTCDay() == 5 ? "<b>Kolacja w domu!</b>" : `${usettings.settings.menu.defaultItems.kol.join('<br>')}<br>${s.kol}`}</td>
+    <td>${s.day.getUTCDay() == 5 ? "<b>Kolacja w domu!</b>" : `${usettings.value.menu.defaultItems.kol.join('<br>')}<br>${s.kol}`}</td>
 </tr>`)
         var html = `<html><head><meta charset="UTF-8"><style>table,th,td{border: 0.4ch solid;}td{line-height: 1;}</style></head><body><table><caption>Jadłospis dekadowy</caption><thead><tr><th>Dzień</th><th>Śniadanie</th><th>Obiad</th><th>Kolacja</th></tr></thead><tbody>${doc.join('\n')}</tbody></table></body></html>`
         res.type('html').send(html)

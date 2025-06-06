@@ -7,11 +7,11 @@ export const settingsRouter = Router()
 settingsRouter.use(adminPerm(Perms.Superadmin))
 
 settingsRouter.get('/', (req, res) => {
-    res.send(usettings.settings)
+    res.send(usettings.value)
 })
 
 settingsRouter.post('/', (req, res) => {
-    usettings.settings = req.body
+    usettings.value = req.body
     res.send({status: 200})
 })
 

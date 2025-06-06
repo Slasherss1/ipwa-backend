@@ -65,8 +65,8 @@ cleanRouter.delete("/:id", async (req, res) => {
 
 cleanRouter.get('/config', (req, res) => {
     res.send({
-        rooms: usettings.settings.rooms,
-        things: usettings.settings.cleanThings
+        rooms: usettings.value.rooms,
+        things: usettings.value.cleanThings
     })
 })
 
@@ -88,7 +88,7 @@ cleanRouter.delete('/attendence/:room', async (req, res) => {
 })
 
 cleanRouter.get('/attendenceSummary', async (req, res) => {
-    var allRooms = usettings.settings.rooms
+    var allRooms = usettings.value.rooms
     var graded = (await Grade.find({date: new Date().setUTCHours(24,0,0,0)})).map(v => v.room)
     var ungraded = allRooms.filter(x => !graded.includes(x))
     var summary = attendence.summary()

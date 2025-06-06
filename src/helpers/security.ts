@@ -18,8 +18,8 @@ class SecurityHelper {
         if (this.timeouts.has(uid)) {
             var t = this.timeouts.get(uid)
             t.attempts += 1
-            if (t.attempts > usettings.settings.security.loginTimeout.attempts) {
-                this.onTimeout.set(uid, scheduleJob(new Date(Date.now() + usettings.settings.security.loginTimeout.lockout * 1000), () => {
+            if (t.attempts > usettings.value.security.loginTimeout.attempts) {
+                this.onTimeout.set(uid, scheduleJob(new Date(Date.now() + usettings.value.security.loginTimeout.lockout * 1000), () => {
                     this.onTimeout.get(uid).cancel()
                     this.onTimeout.delete(uid)
                 }))
@@ -30,7 +30,7 @@ class SecurityHelper {
             this.timeouts.set(uid, {
                 attempts: 1,
                 firstAttempt: new Date(),
-                expire: scheduleJob(new Date(Date.now() + usettings.settings.security.loginTimeout.time * 1000), () => {
+                expire: scheduleJob(new Date(Date.now() + usettings.value.security.loginTimeout.time * 1000), () => {
                     this.timeouts.get(uid).expire.cancel()
                     this.timeouts.delete(uid)
                 })
