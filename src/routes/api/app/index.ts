@@ -28,9 +28,9 @@ appRouter.get("/news/check", capability.mw(Features.News), async (req, res) => {
     res.send(check)
 })
 
-appRouter.get("/menu/:timestamp", capability.mw(Features.Menu), async (req, res) => {
-    var item = await Menu.aggregate(vote(new Date(Number.parseInt(req.params.timestamp)),req.user!._id))
-    var votes = await Vote.find({dom: new Date(Number.parseInt(req.params.timestamp))})
+appRouter.get("/menu/:date", capability.mw(Features.Menu), async (req, res) => {
+    var item = await Menu.aggregate(vote(new Date(req.params.date),req.user!._id))
+    var votes = await Vote.find({dom: new Date(req.params.date)})
     var grouped = votes.reduce((x, y) => {
         x[y.tom].push(y)
         return x
