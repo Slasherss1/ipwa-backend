@@ -1,7 +1,6 @@
-import { project } from "@/utility";
 import { PathOrFileDescriptor, readFileSync, writeFileSync } from "node:fs";
 
-export class FileHandler<T> {
+export abstract class FileHandler<T> {
     protected _value: T
     public get value(): T {
         return this._value;
@@ -13,8 +12,7 @@ export class FileHandler<T> {
 
     constructor(public path: PathOrFileDescriptor, public settings?: {
         defaultContent?: T,
-        name?: string,
-        project?: (keyof T)[] | { [key in keyof T]: any}
+        name?: string
     }) {
         try {
             this._value = JSON.parse(readFileSync(path, 'utf-8'))
@@ -32,11 +30,17 @@ export class FileHandler<T> {
     }
     
     private save() {
-        writeFileSync(this.path, JSON.stringify(project(this._value, this.settings.project), undefined, 2))
+        writeFileSync(this.path, JSON.stringify(this.construct(this._value), undefined, 2))
     }
 
     public reload() {
         this._value = JSON.parse(readFileSync(this.path, { encoding: "utf-8" }))
         console.log(`Reloaded ${this.settings.name}`);
     }
+
+    /**
+     * Method that makes sure that object is the interface.
+     * @param value Input object
+     */
+    abstract construct(value: T | any): T 
 }

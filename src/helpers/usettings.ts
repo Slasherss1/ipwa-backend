@@ -1,5 +1,3 @@
-import { project } from "@/utility";
-import { readFileSync, writeFileSync } from "node:fs";
 import { FileHandler } from "./filehandler";
 
 export interface IUSettings {
@@ -22,6 +20,26 @@ export interface IUSettings {
 }
 
 class UOptions extends FileHandler<IUSettings> {
+    construct(value: IUSettings | any): IUSettings {
+        return {
+            keyrooms: value.keyrooms ?? [],
+            rooms: value.rooms ?? [],
+            cleanThings: value.cleanThings ?? [],
+            menu: {
+                defaultItems: {
+                    sn: value.menu.defaultItems.sn ?? [],
+                    kol: value.menu.defaultItems.kol ?? []
+                }
+            },
+            security: {
+                loginTimeout: {
+                    attempts: value.security.loginTimeout.attempts ?? 0,
+                    time: value.security.loginTimeout.time ?? 0,
+                    lockout: value.security.loginTimeout.lockout ?? 0
+                }
+            }
+        }
+    }
     constructor() {
         const defaultSettings: IUSettings = {
             keyrooms: [],
@@ -41,7 +59,7 @@ class UOptions extends FileHandler<IUSettings> {
                 }
             }
         }
-        super("./config/usettings.json", {defaultContent: defaultSettings, name: "user settings", project: ['cleanThings', 'keyrooms', 'menu', 'rooms', 'security']})
+        super("./config/usettings.json", {defaultContent: defaultSettings, name: "user settings"})
     }
 }
 
