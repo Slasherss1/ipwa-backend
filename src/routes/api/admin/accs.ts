@@ -27,19 +27,21 @@ accsRouter.get('/:id', async (req, res) => {
 
 accsRouter.post('/', async (req, res)=> {
     if (req.body.uname == "admin") return res.status(400).send("This name is reserved").end()
-    if (req.body.flags) {
+    var createdUser
+    if (req.body.admin) {
         if (adminCond(req.user.admin, Perms.Superadmin)) {
-            if (adminCond(req.body.flags, Perms.Superadmin)) {
+            if (adminCond(req.body.admin, Perms.Superadmin)) {
                 res.status(400).send("Cannot set superadmin")
             } else {
-                await User.create({uname: req.body.uname, room: req.body.room, admin: req.body.flags, fname: req.body.fname, surname: req.body.surname})
-                res.status(201).send({status: 201})
+                createdUser = await User.create({uname: req.body.uname, room: req.body.room, admin: req.body.admin, fname: req.body.fname, surname: req.body.surname})
             }
         }
     } else {
-        await User.create({uname: req.body.uname, room: req.body.room, fname: req.body.fname, surname: req.body.surname})
-        res.status(201).send({status: 201})
+        createdUser = await User.create({uname: req.body.uname, room: req.body.room, fname: req.body.fname, surname: req.body.surname})
     }
+    var responseCandidate = createdUser.toJSON()
+    delete responseCandidate.pass
+    res.status(201).send(responseCandidate)
 })
 
 accsRouter.put('/:id', async (req, res)=> {
