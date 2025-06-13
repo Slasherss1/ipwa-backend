@@ -9,7 +9,7 @@ const accsRouter = Router()
 accsRouter.use(adminPerm(Perms.Accs))
 
 accsRouter.get('/', async (req, res)=> {
-    res.send(await User.find({"uname": {"$ne": req.user.uname}}, {pass: 0}))
+    res.send(await User.find(undefined, {pass: 0}))
 })
 
 accsRouter.get('/:id', async (req, res) => {
