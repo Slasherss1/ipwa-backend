@@ -44,15 +44,15 @@ accsRouter.put('/:id', async (req, res)=> {
         res.status(404).send("User not found")
         return
     }
-    if (req.body.flags) {
+    if (req.body.admin) {
         if (adminCond(req.user.admin, Perms.Superadmin)) {
             if (adminCond(user.admin, Perms.Superadmin)) {
                 res.status(400).send("Cannot edit other superadmins")
             } else {
-                if (adminCond(req.body.flags, Perms.Superadmin)) {
+                if (adminCond(req.body.admin, Perms.Superadmin)) {
                     res.status(400).send("Cannot set superadmin")
                 } else {
-                    await user.set({uname: req.body.uname, room: req.body.room, admin: req.body.flags, fname: req.body.fname, surname: req.body.surname, groups: req.body.groups}).save()
+                    await user.set({uname: req.body.uname, room: req.body.room, admin: req.body.admin, fname: req.body.fname, surname: req.body.surname, groups: req.body.groups}).save()
                     res.send({status: 200})
                 }
             }

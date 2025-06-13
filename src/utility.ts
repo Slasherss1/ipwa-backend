@@ -15,14 +15,14 @@ var isadmin = (req: Request, res: Response, next: NextFunction) => {
 }
 
 enum Perms {
-    News = 1,
-    Menu = 2,
-    Notif = 4,
-    Groups = 8,
-    Accs = 16,
-    Superadmin = 32,
-    Key = 64,
-    Clean = 128,
+    News = "news",
+    Menu = "menu",
+    Notif = "notif",
+    Groups = "groups",
+    Accs = "accs",
+    Superadmin = "super",
+    Key = "keys",
+    Clean = "grades",
 }
 
 var adminPerm = (perm: Perms) => {
@@ -34,8 +34,8 @@ var adminPerm = (perm: Perms) => {
     }
 }
 
-var adminCond = (adminInt = 0, perm: Perms) => {
-    return (adminInt & perm) == perm
+var adminCond = (perms: Perms[], perm: Perms) => {
+    return perms.includes(perm)
 }
 
 export function project<T extends object>(obj: T | any, projection?: (keyof T)[] | { [key in keyof T]: any}): Partial<T> {
