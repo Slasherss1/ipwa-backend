@@ -1,8 +1,6 @@
 import User from "@schemas/User";
 import { Router } from "express"
 import { Perms, adminCond, adminPerm } from "@/utility";
-import capability from "@/helpers/capability";
-import Group from "@/schemas/Group";
 import security from "@/helpers/security";
 import { Types } from "mongoose";
 
@@ -11,11 +9,7 @@ const accsRouter = Router()
 accsRouter.use(adminPerm(Perms.Accs))
 
 accsRouter.get('/', async (req, res)=> {
-    var data = {
-        users: await User.find({"uname": {"$ne": req.user.uname}}, {pass: 0}),
-        groups: capability.settings.groups ? await Group.find() : undefined
-    }
-    res.send(data)
+    res.send(await User.find({"uname": {"$ne": req.user.uname}}, {pass: 0}))
 })
 
 accsRouter.get('/:id', async (req, res) => {
