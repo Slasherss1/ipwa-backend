@@ -10,13 +10,14 @@ import usettings from "@/helpers/usettings";
 import Grade from "@schemas/Grade";
 import { createHash } from "node:crypto";
 import Inbox from "@/schemas/Inbox";
+import { IUser } from "@/schemas/User";
 
 export const appRouter = Router();
 
 appRouter.use(islogged)
 
 appRouter.get("/news", capability.mw(Features.News), async (req, res) => {
-    var news = await News.find({"visible": {"$ne": false}}, {_id: 0, visible: 0}, {sort: {pinned: -1 ,date: -1}})
+    var news = await News.find({"visible": {"$ne": false}}, {_id: 0, visible: 0}, {sort: {pinned: -1 ,date: -1}}).populate<{author: Pick<IUser, "fname" | "surname" | "uname">}>("author", ["fname", "surname", "uname"])
     res.send(news)
 })
 
