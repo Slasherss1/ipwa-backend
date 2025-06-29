@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Response } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import passport from "passport";
@@ -23,7 +23,15 @@ declare global {
         export interface User extends IUser {
             _id: mongoose.Types.ObjectId;
         }
+        
+        interface Response {
+            sendStatusMessage(code: number, message?: string): this
+        }
     }
+}
+
+express.response.sendStatusMessage = function (code, message) {
+    return (this as Response).status(code).send({status: code, message: message})
 }
 
 //#region express initialization
