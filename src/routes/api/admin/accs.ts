@@ -47,7 +47,7 @@ accsRouter.put('/:id', async (req, res)=> {
     if (req.body.admin) {
         if (adminCond(req.user.admin, Perms.Superadmin)) {
             if (adminCond(user.admin, Perms.Superadmin)) {
-                res.status(400).send("Cannot edit other superadmins")
+                res.status(400).send("Cannot edit superadmins")
             } else {
                 if (adminCond(req.body.admin, Perms.Superadmin)) {
                     res.status(400).send("Cannot set superadmin")
