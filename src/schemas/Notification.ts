@@ -1,6 +1,6 @@
 import mongoose, { Types, Schema } from "mongoose"
 
-interface INotification {
+export interface INotification {
     endpoint: string;
     keys: {
         auth: string;
