@@ -1,4 +1,4 @@
-import { Perms } from "@/utility";
+import { Perms, project } from "@/utility";
 import mongoose, { Types, Schema } from "mongoose"
 
 export interface IUser {
@@ -30,3 +30,7 @@ const userSchema = new Schema<IUser>({
 userSchema.index({uname: "text", room: "text", fname: "text", surname: "text"}, {weights: {fname: 3, surname: 4, room: 2, uname: 1}, default_language: "none"})
 
 export default mongoose.model("logins", userSchema)
+
+export function userVisibleFields(user: IUser & {_id: mongoose.Types.ObjectId}): Pick<IUser, "fname" | "surname" | "uname" | "room"> & {_id: mongoose.Types.ObjectId} {
+    return project<IUser & {_id: mongoose.Types.ObjectId}>(user, ["fname", "surname", "uname", "room", "_id"]) as Pick<IUser, "fname" | "surname" | "uname" | "room"> & {_id: mongoose.Types.ObjectId}
+}

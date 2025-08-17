@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import User from "@schemas/User";
+import User, { userVisibleFields } from "@schemas/User";
 import { islogged } from "@/utility";
 import bcrypt from "bcryptjs"
 import cap from "@/helpers/capability";
@@ -80,7 +80,7 @@ authRouter.get("/check", islogged, (req, res, next) => {
             res.status(401).send({ status: 401, message: "Your account has been locked." })
         })
     }
-    res.send({ "admin": req.user.admin, "features": cap.flags, "room": req.user.room, "menu": { "defaultItems": usettings.value.menu.defaultItems }, "vapid": vapidKeys.keys.publicKey })
+    res.send({ "admin": req.user.admin, "features": cap.flags, "user": userVisibleFields(req.user), "menu": { "defaultItems": usettings.value.menu.defaultItems }, "vapid": vapidKeys.keys.publicKey })
 })
 
 authRouter.put("/redirect", islogged, async (req, res) => {
