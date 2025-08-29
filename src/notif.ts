@@ -4,6 +4,7 @@ import vapidKeys from "./vapidKeys";
 import User, { IUser } from "./schemas/User";
 import Inbox from "./schemas/Inbox";
 import { Types } from "mongoose";
+import sync from "./helpers/sync";
 
 export interface SimpleMessage {
     title: string;
@@ -56,6 +57,9 @@ export class Message {
         await this.findRcpt()
         if (this.rcptIds.length > 0) {
             await Inbox.create({ message: this.message.notification, rcpt: this.rcptIds })
+            for (const element of this.rcptIds) {
+                sync.next(element, {type: "notif"})
+            }
             return await this.push()
         } else {
             return false

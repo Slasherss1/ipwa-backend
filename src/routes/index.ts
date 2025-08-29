@@ -5,6 +5,7 @@ import { authRouter } from "./auth/index";
 import capability, { Features } from "@/helpers/capability";
 import mongoose from "mongoose";
 import { apiRouter } from "./api";
+import sync from "@/helpers/sync";
 
 const router = Router();
 
@@ -20,11 +21,19 @@ router.get("/healthcheck", async (req, res) => {
 })
 
 router.post("/notif", islogged, capability.mw(Features.Notif), async (req, res) => {
-    var obj = {user: req.user._id, ...req.body}
-    await Notification.findOneAndUpdate(obj, obj, {upsert: true})
-    res.send({"status": 200})
+    var obj = { user: req.user._id, ...req.body }
+    await Notification.findOneAndUpdate(obj, obj, { upsert: true })
+    res.send({ "status": 200 })
 })
 
-router.use("/", apiRouter)
+router.get("/sync", islogged, async (req, res) => {
+    const sub = sync.subscribe(req.user._id, v => {
+        res.send(v)
+    })
+
+    req.once('close', () => {
+        sub.unsubscribe()
+    })
+})
 
 export default router;

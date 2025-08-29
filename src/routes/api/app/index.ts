@@ -8,7 +8,6 @@ import capability, { Features } from "@/helpers/capability";
 import Key, { IKey } from "@schemas/Key";
 import usettings from "@/helpers/usettings";
 import Grade from "@schemas/Grade";
-import { createHash } from "node:crypto";
 import Inbox from "@/schemas/Inbox";
 import { IUser } from "@/schemas/User";
 
@@ -19,14 +18,6 @@ appRouter.use(islogged)
 appRouter.get("/news", capability.mw(Features.News), async (req, res) => {
     var news = await News.find({"visible": {"$ne": false}}, {_id: 0, visible: 0}, {sort: {pinned: -1 ,date: -1}}).populate<{author: Pick<IUser, "fname" | "surname" | "uname">}>("author", ["fname", "surname", "uname"])
     res.send(news)
-})
-
-appRouter.get("/news/check", capability.mw(Features.News), async (req, res) => {
-    var news = await News.find({"visible": {"$ne": false}}, {_id: 0, visible: 0}, {sort: {pinned: -1 ,date: -1}})
-    const hash = createHash('sha1')
-    var newsha = hash.update(news.toString()).digest('hex');
-    var check: { hash: string; count: number; } = {hash: newsha, count: news.length}
-    res.send(check)
 })
 
 appRouter.get("/menu/:date", capability.mw(Features.Menu), async (req, res) => {
