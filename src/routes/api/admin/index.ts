@@ -9,8 +9,8 @@ import { keysRouter } from "./keys";
 import { cleanRouter } from "./clean";
 import { settingsRouter } from "./settings";
 import User from "@/schemas/User";
-import capability from "@/helpers/capability";
 import Group from "@/schemas/Group";
+import usettings from "@/helpers/usettings";
 
 export const adminRouter = Router()
 
@@ -31,6 +31,6 @@ adminRouter.get('/usearch', async (req, res) => {
 
 adminRouter.get('/sync', async (req, res) => {
     res.send({
-        groups: capability.settings.groups ? await Group.find() : undefined
+        groups: usettings.value.modules.groups ? await Group.find() : undefined
     })
 })

@@ -16,7 +16,7 @@ export abstract class FileHandler<T> {
     }) {
         try {
             this._value = JSON.parse(readFileSync(path, 'utf-8'))
-            console.log("Loaded user settings");
+            console.log(`Loaded ${this.settings.name}`);
         } catch (error) {
             if (error instanceof Error) {
                 if ('code' in error) {

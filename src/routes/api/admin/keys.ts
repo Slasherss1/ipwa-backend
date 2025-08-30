@@ -1,13 +1,12 @@
 import { Router } from "express";
-import capability, { Features } from "@/helpers/capability";
 import Key from "@schemas/Key";
-import usettings from "@/helpers/usettings";
+import usettings, { Features } from "@/helpers/usettings";
 import User, { IUser } from "@schemas/User";
 import { Perms, adminPerm } from "@/utility";
 
 const keysRouter = Router()
 
-keysRouter.use(capability.mw(Features.Key))
+keysRouter.use(usettings.mw(Features.Key))
 keysRouter.use(adminPerm(Perms.Key))
 
 keysRouter.get("/", async (req, res) => {

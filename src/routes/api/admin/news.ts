@@ -1,14 +1,14 @@
 import { Router } from "express";
 import News from "@schemas/News"
 import { Perms, adminPerm } from "@/utility";
-import capability, { Features } from "@/helpers/capability";
 import { IUser } from "@/schemas/User";
 import sync, { SyncEvent } from "@/helpers/sync";
+import usettings, { Features } from "@/helpers/usettings";
 
 const newsRouter = Router()
 
 newsRouter.use(adminPerm(Perms.News))
-newsRouter.use(capability.mw(Features.News))
+newsRouter.use(usettings.mw(Features.News))
 // TODO: Update sync condition
 newsRouter.get('/', async (req, res) => {
     var news = await News.find(undefined, undefined, { sort: { pinned: -1, date: -1 } }).populate<{ author: Pick<IUser, "fname" | "surname" | "uname"> }>("author", ["fname", "surname", "uname"])

@@ -1,12 +1,12 @@
 import Group from "@schemas/Group";
 import { Router } from "express"
 import { Perms, adminPerm } from "@/utility";
-import capability, { Features } from "@/helpers/capability";
+import usettings, { Features } from "@/helpers/usettings";
 
 const groupsRouter = Router()
 
 groupsRouter.use(adminPerm(Perms.Groups))
-groupsRouter.use(capability.mw(Features.Groups))
+groupsRouter.use(usettings.mw(Features.Groups))
 
 groupsRouter.get('/', async (req, res)=> {
     res.send(await Group.find({}))

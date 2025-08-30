@@ -2,13 +2,13 @@ import { Request, Response, Router } from "express";
 import { Perms, adminPerm } from "@/utility";
 import Group from "@schemas/Group";
 import { Message } from "@/notif";
-import capability, { Features } from "@/helpers/capability";
 import { outboxRouter } from "./outbox";
+import usettings, { Features } from "@/helpers/usettings";
 
 const notifRouter = Router()
 
 notifRouter.use(adminPerm(Perms.Notif))
-notifRouter.use(capability.mw(Features.Notif))
+notifRouter.use(usettings.mw(Features.Notif))
 
 type PushSendBody = {
     recp:
@@ -29,7 +29,7 @@ notifRouter.post("/send", async (req: Request<undefined, undefined, PushSendBody
             recp = req.body.recp.room
             break;
         case "group":
-            if (!capability.settings.groups) return res.sendStatus(406).end()
+            if (!usettings.value.modules.groups) return res.sendStatus(406).end()
             recp = req.body.recp.group
             break;
         default:

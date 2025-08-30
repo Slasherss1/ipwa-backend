@@ -2,10 +2,10 @@ import { Router } from "express";
 import Notification from "@schemas/Notification";
 import { islogged } from "@/utility";
 import { authRouter } from "./auth/index";
-import capability, { Features } from "@/helpers/capability";
 import mongoose from "mongoose";
 import { apiRouter } from "./api";
 import sync from "@/helpers/sync";
+import usettings, { Features } from "@/helpers/usettings";
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.get("/healthcheck", async (req, res) => {
     })
 })
 
-router.post("/notif", islogged, capability.mw(Features.Notif), async (req, res) => {
+router.post("/notif", islogged, usettings.mw(Features.Notif), async (req, res) => {
     var obj = { user: req.user._id, ...req.body }
     await Notification.findOneAndUpdate(obj, obj, { upsert: true })
     res.send({ "status": 200 })
