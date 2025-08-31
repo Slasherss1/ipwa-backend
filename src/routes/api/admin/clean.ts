@@ -1,16 +1,15 @@
 import { Router } from "express";
 import { Perms, adminPerm } from "@/utility";
-import capability, { Features } from "@/helpers/capability";
-import usettings from "@/helpers/usettings";
+import usettings, { Features } from "@/helpers/usettings";
 import Grade from "@schemas/Grade";
 import User from "@/schemas/User";
 import attendence from "@/helpers/attendence";
 
 const cleanRouter = Router()
 cleanRouter.use(adminPerm(Perms.Clean))
-cleanRouter.use(capability.mw(Features.Clean))
+cleanRouter.use(usettings.mw(Features.Clean))
 
-cleanRouter.get("/:date([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)/:room", async (req, res) => {
+cleanRouter.get("/:date([0-9]{4}-[0-9]{2}-[0-9]{2})/:room", async (req, res) => {
     res.send(await Grade.findOne({
         date: new Date(req.params.date),
         room: req.params.room

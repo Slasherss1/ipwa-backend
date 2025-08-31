@@ -1,10 +1,11 @@
+import { Perms, project } from "@/utility";
 import mongoose, { Types, Schema } from "mongoose"
 
 export interface IUser {
     uname: string;
     pass: string;
     room?: string;
-    admin?: number;
+    admin?: Perms[];
     locked?: boolean;
     fname?: string;
     surname?: string;
@@ -17,7 +18,7 @@ const userSchema = new Schema<IUser>({
     uname: {type: String, required: true},
     pass: {type: String, required: true, default: "$2y$10$wxDhf.XiXkmdKrFqYUEa0.F4Bf.pDykZaMmgjvyLyeRP3E/Xy0hbC"},
     room: {type: String, default: ""},
-    admin: Number,
+    admin: [{type: String}],
     locked: {type: Boolean, default: false},
     fname: {type: String, default: ""},
     surname: {type: String, default: ""},
@@ -29,3 +30,7 @@ const userSchema = new Schema<IUser>({
 userSchema.index({uname: "text", room: "text", fname: "text", surname: "text"}, {weights: {fname: 3, surname: 4, room: 2, uname: 1}, default_language: "none"})
 
 export default mongoose.model("logins", userSchema)
+
+export function userVisibleFields(user: IUser & {_id: mongoose.Types.ObjectId}): Pick<IUser, "fname" | "surname" | "uname" | "room"> & {_id: mongoose.Types.ObjectId} {
+    return project<IUser & {_id: mongoose.Types.ObjectId}>(user, ["fname", "surname", "uname", "room", "_id"]) as Pick<IUser, "fname" | "surname" | "uname" | "room"> & {_id: mongoose.Types.ObjectId}
+}

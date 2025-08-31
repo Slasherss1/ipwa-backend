@@ -1,8 +1,6 @@
 import User from "@schemas/User";
 import { Router } from "express"
 import { Perms, adminCond, adminPerm } from "@/utility";
-import capability from "@/helpers/capability";
-import Group from "@/schemas/Group";
 import security from "@/helpers/security";
 import { Types } from "mongoose";
 
@@ -11,11 +9,7 @@ const accsRouter = Router()
 accsRouter.use(adminPerm(Perms.Accs))
 
 accsRouter.get('/', async (req, res)=> {
-    var data = {
-        users: await User.find({"uname": {"$ne": req.user.uname}}, {pass: 0}),
-        groups: capability.settings.groups ? await Group.find() : undefined
-    }
-    res.send(data)
+    res.send(await User.find(undefined, {pass: 0}))
 })
 
 accsRouter.get('/:id', async (req, res) => {
@@ -27,19 +21,21 @@ accsRouter.get('/:id', async (req, res) => {
 
 accsRouter.post('/', async (req, res)=> {
     if (req.body.uname == "admin") return res.status(400).send("This name is reserved").end()
-    if (req.body.flags) {
+    var createdUser
+    if (req.body.admin) {
         if (adminCond(req.user.admin, Perms.Superadmin)) {
-            if (adminCond(req.body.flags, Perms.Superadmin)) {
+            if (adminCond(req.body.admin, Perms.Superadmin)) {
                 res.status(400).send("Cannot set superadmin")
             } else {
-                await User.create({uname: req.body.uname, room: req.body.room, admin: req.body.flags, fname: req.body.fname, surname: req.body.surname})
-                res.status(201).send({status: 201})
+                createdUser = await User.create({uname: req.body.uname, room: req.body.room, admin: req.body.admin, fname: req.body.fname, surname: req.body.surname})
             }
         }
     } else {
-        await User.create({uname: req.body.uname, room: req.body.room, fname: req.body.fname, surname: req.body.surname})
-        res.status(201).send({status: 201})
+        createdUser = await User.create({uname: req.body.uname, room: req.body.room, fname: req.body.fname, surname: req.body.surname})
     }
+    var responseCandidate = createdUser.toJSON()
+    delete responseCandidate.pass
+    res.status(201).send(responseCandidate)
 })
 
 accsRouter.put('/:id', async (req, res)=> {
@@ -48,15 +44,15 @@ accsRouter.put('/:id', async (req, res)=> {
         res.status(404).send("User not found")
         return
     }
-    if (req.body.flags) {
+    if (req.body.admin) {
         if (adminCond(req.user.admin, Perms.Superadmin)) {
             if (adminCond(user.admin, Perms.Superadmin)) {
-                res.status(400).send("Cannot edit other superadmins")
+                res.status(400).send("Cannot edit superadmins")
             } else {
-                if (adminCond(req.body.flags, Perms.Superadmin)) {
+                if (adminCond(req.body.admin, Perms.Superadmin)) {
                     res.status(400).send("Cannot set superadmin")
                 } else {
-                    await user.set({uname: req.body.uname, room: req.body.room, admin: req.body.flags, fname: req.body.fname, surname: req.body.surname, groups: req.body.groups}).save()
+                    await user.set({uname: req.body.uname, room: req.body.room, admin: req.body.admin, fname: req.body.fname, surname: req.body.surname, groups: req.body.groups}).save()
                     res.send({status: 200})
                 }
             }

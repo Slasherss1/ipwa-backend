@@ -1,9 +1,10 @@
 import { RequestOptions, SendResult, VapidKeys, WebPushError, sendNotification } from "web-push";
-import Notification from "./schemas/Notification";
+import Notification, { INotification } from "./schemas/Notification";
 import vapidKeys from "./vapidKeys";
 import User, { IUser } from "./schemas/User";
 import Inbox from "./schemas/Inbox";
 import { Types } from "mongoose";
+import sync from "./helpers/sync";
 
 export interface SimpleMessage {
     title: string;
@@ -20,8 +21,10 @@ export class Message {
     private message: { notification: SimpleMessage }
     private rcptType: "uid" | "room" | "group"
     private rcpt: string
-    
-    constructor (title: string, body: string, rcptType: "uid" | "room" | "group", rcpt: string) {
+    private subscriptions: INotification[] | any[]
+    private rcptIds: Types.ObjectId[]
+
+    constructor(title: string, body: string, rcptType: "uid" | "room" | "group", rcpt: string) {
         let keys: VapidKeys = vapidKeys.keys
         this.options = {
             vapidDetails: {
@@ -35,47 +38,59 @@ export class Message {
         this.rcpt = rcpt
     }
 
-    async findUserNotif(uid: string) {
-        var notif = await Notification.find().populate<{user: Pick<IUser, 'uname'> & {_id: Types.ObjectId}}>('user', ['uname', '_id']).exec()
+    private async findUserNotif(uid: string) {
+        let notif = await Notification.find().populate<{ user: Pick<IUser, 'uname'> & { _id: Types.ObjectId } }>('user', ['uname', '_id']).exec()
         return notif.filter(val => val.user._id.toString() == uid)
     }
 
-    async findRoomNotif(room: string) {
-        var notif = await Notification.find().populate<{user: Pick<IUser, 'room'> & {_id: Types.ObjectId}}>('user', ['room', '_id']).exec()
+    private async findRoomNotif(room: string) {
+        let notif = await Notification.find().populate<{ user: Pick<IUser, 'room'> & { _id: Types.ObjectId } }>('user', ['room', '_id']).exec()
         return notif.filter(val => val.user.room == room)
     }
 
-    async findGroupNotif(groupId: string)  {
-        var notif = await Notification.find().populate<{user: Pick<IUser, 'groups'> & {_id: Types.ObjectId}}>('user', ['groups', '_id']).exec()
+    private async findGroupNotif(groupId: string) {
+        let notif = await Notification.find().populate<{ user: Pick<IUser, 'groups'> & { _id: Types.ObjectId } }>('user', ['groups', '_id']).exec()
         return notif.filter(val => val.user.groups.find(x => x.toString() == groupId))
     }
 
-    public async send(): Promise<PushResult> {
-        var subscriptions
-        var rcptIds: Types.ObjectId[]
+    public async send(): Promise<PushResult | false> {
+        await this.findRcpt()
+        if (this.rcptIds.length > 0) {
+            await Inbox.create({ message: this.message.notification, rcpt: this.rcptIds })
+            for (const element of this.rcptIds) {
+                sync.next(element, {type: "notif"})
+            }
+            return await this.push()
+        } else {
+            return false
+        }
+    }
+
+    private async findRcpt() {
         switch (this.rcptType) {
             case "uid":
-                subscriptions = await this.findUserNotif(this.rcpt)
-                rcptIds = [new Types.ObjectId(this.rcpt)]
+                this.subscriptions = await this.findUserNotif(this.rcpt)
+                this.rcptIds = [new Types.ObjectId(this.rcpt)]
                 break;
             case "room":
-                subscriptions = await this.findRoomNotif(this.rcpt)
-                rcptIds = (await User.find({room: this.rcpt})).map(v => v._id)
+                this.subscriptions = await this.findRoomNotif(this.rcpt)
+                this.rcptIds = (await User.find({ room: this.rcpt })).map(v => v._id)
                 break;
             case "group":
-                subscriptions = await this.findGroupNotif(this.rcpt)
-                rcptIds = (await User.find({groups: this.rcpt})).map(v => v._id)
+                this.subscriptions = await this.findGroupNotif(this.rcpt)
+                this.rcptIds = (await User.find({ groups: this.rcpt })).map(v => v._id)
                 break;
             default:
                 throw new Error(`Wrong recipient type used: ${this.rcptType}`);
         }
+        return
+    }
 
-        await Inbox.create({message: this.message.notification, rcpt: rcptIds})
-
-        var count = 0;
-        var subslen = subscriptions.length
-        for (const v of subscriptions) {
-            var result: SendResult
+    private async push() {
+        let count = 0;
+        let subslen = this.subscriptions.length
+        for (const v of this.subscriptions) {
+            let result: SendResult
             try {
                 result = await sendNotification(v, JSON.stringify(this.message), this.options)
                 count++
@@ -100,6 +115,6 @@ export class Message {
             }
         }
 
-        return {sent: count, possible: subslen}
+        return { sent: count, possible: subslen } as PushResult
     }
 }
