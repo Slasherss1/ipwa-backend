@@ -13,11 +13,6 @@ import process from "node:process"
 import security from "./helpers/security";
 const connectionString = process.env.ATLAS_URI || "mongodb://mongodb:27017/ipwa";
 
-if (!process.env.DOMAIN) {
-    console.log("CORS origin undefined")
-    process.exit(1)
-}
-
 declare global {
     namespace Express {
         export interface User extends IUser {
@@ -39,7 +34,7 @@ var app = express();
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors({
-    origin: ["http://localhost:4200", `https://${process.env.DOMAIN}`,],
+    origin: ["http://localhost:4200", process.env.DOMAIN && `https://${process.env.DOMAIN}`,],
     credentials: true
 }))
 app.use(session({
@@ -91,7 +86,12 @@ passport.deserializeUser(async function (id, done) {
 });
 
 var server = app.listen(8080, async () => {
-    await mongoose.connect(connectionString);
+    try {
+        await mongoose.connect(connectionString);
+    } catch (error) {
+        console.error("Failed to connect to database", error)
+        process.exit(1)
+    }
     await dataMigration()
     if (process.send) process.send("ready")
 })

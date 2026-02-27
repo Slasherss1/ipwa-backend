@@ -1,12 +1,12 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { generateVAPIDKeys, VapidKeys } from "web-push";
+import webpush from "web-push";
 
 class VapidKeysSettings {
-    private _keys: VapidKeys;
-    public get keys(): VapidKeys {
+    private _keys: webpush.VapidKeys;
+    public get keys(): webpush.VapidKeys {
         return this._keys;
     }
-    public set keys(value: VapidKeys) {
+    public set keys(value: webpush.VapidKeys) {
         this._keys = value;
         this.save()
     }
@@ -26,13 +26,13 @@ class VapidKeysSettings {
             if (error instanceof Error) {
                 if ('code' in error) {
                     if (error.code === "ENOENT") {
-                        this.keys = generateVAPIDKeys();
+                        this.keys = webpush.generateVAPIDKeys();
                     }
                 }
             }
         } finally {
             if (!(this.keys.privateKey && this.keys.publicKey)) {
-                this.keys = generateVAPIDKeys()
+                this.keys = webpush.generateVAPIDKeys()
             }
             console.log("Reloaded VAPID keys");
         }
