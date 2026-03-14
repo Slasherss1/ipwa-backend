@@ -11,6 +11,7 @@ import User, { IUser } from "./schemas/User";
 import routes from "./routes/index";
 import process from "node:process"
 import security from "./helpers/security";
+import Vote from "./schemas/Vote";
 const connectionString = process.env.ATLAS_URI || "mongodb://mongodb:27017/ipwa";
 
 declare global {
@@ -105,7 +106,7 @@ process.on('SIGINT', () => {
 
 async function dataMigration() {
     //#region User
-    var users = await User.find({ admin: { $type: "int" } }).lean()
+    var users = await User.find({ admin: { $type: "int" } })
     users.forEach(async v => {
         var oldFlags = v.admin as unknown as number
         var newFlags: string[] | undefined = []
@@ -120,5 +121,15 @@ async function dataMigration() {
         if (newFlags.length == 0) newFlags = undefined
         await User.findByIdAndUpdate(v._id, { $set: { admin: newFlags } })
     })
+    //#endregion
+
+    //#region Votes
+    var votes = await Vote.find({ name: { $exists: false } })
+    var counter = 0
+    votes.forEach(async v => {
+        counter++
+        await v.deleteOne()
+    })
+    counter && console.log("Removed %d old vote entries", counter)
     //#endregion
 }
