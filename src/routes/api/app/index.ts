@@ -20,34 +20,67 @@ appRouter.get("/news", usettings.mw(Features.News), async (req, res) => {
 })
 
 appRouter.get("/menu/:date", usettings.mw(Features.Menu), async (req, res) => {
-    var item = await Menu.aggregate(vote(new Date(req.params.date),req.user!._id))
-    var votes = await Vote.find({dom: new Date(req.params.date)})
-    var grouped = votes.reduce((x, y) => {
-        x[y.tom].push(y)
-        return x
-    }, {ob: [], kol: []})
-    var count = {
-        ob: (grouped.ob.filter(v=>v.vote == "+").length / grouped.ob.length * 100).toFixed(2),
-        kol: (grouped.kol.filter(v=>v.vote == "+").length / grouped.kol.length * 100).toFixed(2)
-    }
-    var final = {
-        ...item[0],
-        stat: count
-    }
+    // var item = await Menu.aggregate(vote(new Date(req.params.date),req.user!._id))
+    // var votes = await Vote.find({dom: new Date(req.params.date)})
+    // var grouped = votes.reduce((x, y) => {
+    //     x[y.tom].push(y)
+    //     return x
+    // }, {ob: [], kol: []})
+    // var count = {
+    //     ob: (grouped.ob.filter(v=>v.vote == "+").length / grouped.ob.length * 100).toFixed(2),
+    //     kol: (grouped.kol.filter(v=>v.vote == "+").length / grouped.kol.length * 100).toFixed(2)
+    // }
+    // var final = {
+    //     ...item[0],
+    //     stat: count
+    // }
+    var final = await Menu.findOne({day: new Date(req.params.date)})
     res.send(final)
 })
 
+appRouter.get("/menu/:date/stat", usettings.mw(Features.Menu), async (req, res) => {
+    console.log(req.params.date);
+    
+    const data = await Vote.find({dom: new Date(req.params.date), user: req.user._id})
+    console.log(data);
+    
+    res.send(data);
+    
+})
+
 appRouter.post("/menu/:timestamp", usettings.mw(Features.Menu), async (req, res) => {
-    const vote = await Vote.findOneAndUpdate({user: req.user._id, dom: new Date(req.params.timestamp), tom: req.body.tom}, {
-        ...req.body,
-        user: req.user._id,
-        dom: new Date(req.params.timestamp),
-    }, {upsert: true, new: true})
-    if (vote) {
-        res.send({status: 200})
-    } else {
-        res.sendStatus(500)
-    }
+    req.body.forEach(async v => {
+        const a = await Vote.findOne({user: req.user._id, name: v.name, dom: new Date(req.params.timestamp)})
+        if (a) {
+            console.log(a);
+        } else {
+            const newVote = new Vote({
+                dom: new Date(req.params.timestamp),
+                name: v.name,
+                tom: v.type,
+                timestamp: Date.now(),
+                user: req.user._id,
+                vote: {
+                    comment: v.value.comment,
+                    rating: v.value.rating,
+                    tags: v.value.tags
+                }
+            })
+
+            await newVote.save()
+        }
+    })
+    res.end()
+    // const vote = await Vote.findOneAndUpdate({user: req.user._id, dom: new Date(req.params.timestamp), tom: req.body.tom}, {
+    //     ...req.body,
+    //     user: req.user._id,
+    //     dom: new Date(req.params.timestamp),
+    // }, {upsert: true, new: true})
+    // if (vote) {
+    //     res.send({status: 200})
+    // } else {
+    //     res.sendStatus(500)
+    // }
 })
 
 appRouter.get("/keys", usettings.mw(Features.Key), async (req, res) => {
