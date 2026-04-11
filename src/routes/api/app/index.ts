@@ -1,14 +1,14 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { islogged } from "@/utility";
 import News from "@schemas/News";
 import Menu from "@schemas/Menu";
 import Vote from "@schemas/Vote";
-import { vote } from "@/pipelines/vote";
 import Key, { IKey } from "@schemas/Key";
 import usettings, { Features } from "@/helpers/usettings";
 import Grade from "@schemas/Grade";
 import Inbox from "@/schemas/Inbox";
 import { IUser } from "@/schemas/User";
+import _ from "underscore";
 
 export const appRouter = Router();
 
@@ -39,21 +39,27 @@ appRouter.get("/menu/:date", usettings.mw(Features.Menu), async (req, res) => {
 })
 
 appRouter.get("/menu/:date/stat", usettings.mw(Features.Menu), async (req, res) => {
-    console.log(req.params.date);
-    
     const data = await Vote.find({dom: new Date(req.params.date), user: req.user._id})
-    console.log(data);
     
     res.send(data);
     
 })
 
-appRouter.post("/menu/:timestamp", usettings.mw(Features.Menu), async (req, res) => {
+appRouter.post("/menu/:timestamp", usettings.mw(Features.Menu), async (req: Request<{ timestamp: string }, undefined, any[]>, res) => {
     req.body.forEach(async v => {
         const a = await Vote.findOne({user: req.user._id, name: v.name, dom: new Date(req.params.timestamp)})
         if (a) {
-            console.log(a);
+            if (v.value) {
+                if (_.isEqual(a.vote, v.value)) return
+                a.set("timestamp", Date.now())
+                a.set("vote", v.value)
+                await a.save()
+            } else {
+                await a.deleteOne()
+            }
         } else {
+            if (!v.value) return;
+
             const newVote = new Vote({
                 dom: new Date(req.params.timestamp),
                 name: v.name,
@@ -70,17 +76,7 @@ appRouter.post("/menu/:timestamp", usettings.mw(Features.Menu), async (req, res)
             await newVote.save()
         }
     })
-    res.end()
-    // const vote = await Vote.findOneAndUpdate({user: req.user._id, dom: new Date(req.params.timestamp), tom: req.body.tom}, {
-    //     ...req.body,
-    //     user: req.user._id,
-    //     dom: new Date(req.params.timestamp),
-    // }, {upsert: true, new: true})
-    // if (vote) {
-    //     res.send({status: 200})
-    // } else {
-    //     res.sendStatus(500)
-    // }
+    res.sendStatusMessage(200).end()
 })
 
 appRouter.get("/keys", usettings.mw(Features.Key), async (req, res) => {
