@@ -1,4 +1,4 @@
-import { RequestOptions, SendResult, VapidKeys, WebPushError, sendNotification } from "web-push";
+import webpush from "web-push";
 import Notification, { INotification } from "./schemas/Notification";
 import vapidKeys from "./vapidKeys";
 import User, { IUser } from "./schemas/User";
@@ -17,7 +17,7 @@ export interface PushResult {
 }
 
 export class Message {
-    private options: RequestOptions
+    private options: webpush.RequestOptions
     private message: { notification: SimpleMessage }
     private rcptType: "uid" | "room" | "group"
     private rcpt: string
@@ -25,7 +25,7 @@ export class Message {
     private rcptIds: Types.ObjectId[]
 
     constructor(title: string, body: string, rcptType: "uid" | "room" | "group", rcpt: string) {
-        let keys: VapidKeys = vapidKeys.keys
+        let keys: webpush.VapidKeys = vapidKeys.keys
         this.options = {
             vapidDetails: {
                 subject: `https://${process.env.DOMAIN}`,
@@ -90,12 +90,12 @@ export class Message {
         let count = 0;
         let subslen = this.subscriptions.length
         for (const v of this.subscriptions) {
-            let result: SendResult
+            let result: webpush.SendResult
             try {
-                result = await sendNotification(v, JSON.stringify(this.message), this.options)
+                result = await webpush.sendNotification(v, JSON.stringify(this.message), this.options)
                 count++
             } catch (error) {
-                if (error instanceof WebPushError) {
+                if (error instanceof webpush.WebPushError) {
                     switch (error.statusCode) {
                         case 410:
                             console.log("GONE")

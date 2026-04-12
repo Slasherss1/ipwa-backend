@@ -11,12 +11,8 @@ import User, { IUser } from "./schemas/User";
 import routes from "./routes/index";
 import process from "node:process"
 import security from "./helpers/security";
+import Vote from "./schemas/Vote";
 const connectionString = process.env.ATLAS_URI || "mongodb://mongodb:27017/ipwa";
-
-if (!process.env.DOMAIN) {
-    console.log("CORS origin undefined")
-    process.exit(1)
-}
 
 declare global {
     namespace Express {
@@ -39,7 +35,7 @@ var app = express();
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors({
-    origin: ["http://localhost:4200", `https://${process.env.DOMAIN}`,],
+    origin: ["http://localhost:4200", process.env.DOMAIN && `https://${process.env.DOMAIN}`,],
     credentials: true
 }))
 app.use(session({
@@ -91,7 +87,12 @@ passport.deserializeUser(async function (id, done) {
 });
 
 var server = app.listen(8080, async () => {
-    await mongoose.connect(connectionString);
+    try {
+        await mongoose.connect(connectionString);
+    } catch (error) {
+        console.error("Failed to connect to database", error)
+        process.exit(1)
+    }
     await dataMigration()
     if (process.send) process.send("ready")
 })
@@ -105,7 +106,7 @@ process.on('SIGINT', () => {
 
 async function dataMigration() {
     //#region User
-    var users = await User.find({ admin: { $type: "int" } }).lean()
+    var users = await User.find({ admin: { $type: "int" } })
     users.forEach(async v => {
         var oldFlags = v.admin as unknown as number
         var newFlags: string[] | undefined = []
@@ -120,5 +121,15 @@ async function dataMigration() {
         if (newFlags.length == 0) newFlags = undefined
         await User.findByIdAndUpdate(v._id, { $set: { admin: newFlags } })
     })
+    //#endregion
+
+    //#region Votes
+    var votes = await Vote.find({ name: { $exists: false } })
+    var counter = 0
+    votes.forEach(async v => {
+        counter++
+        await v.deleteOne()
+    })
+    counter && console.log("Removed %d old vote entries", counter)
     //#endregion
 }

@@ -3,7 +3,6 @@ import { Perms, adminPerm, project } from "@/utility"
 import multer from "multer"
 import * as XLSX from "xlsx"
 import Menu from "@schemas/Menu"
-import Vote from "@schemas/Vote"
 import { editorRouter } from "./editor"
 import usettings, { Features } from "@/helpers/usettings"
 
@@ -182,21 +181,6 @@ menuRouter.put('/:id', async (req, res) => {
         res.status(400).send("No valid fields set")
         return
     }
-})
-
-menuRouter.get('/:id/votes/:m', async (req, res) => {
-    let votes = await Vote.find({dom: new Date(req.params.id)})
-    if (!votes) {
-        res.end()
-        return
-    }
-    var fvotes = votes.filter(i => i.tom == req.params.m)
-    var ycount = fvotes.filter(i => i.vote == "+").length
-    var ncount = fvotes.filter(i => i.vote == "-").length
-    res.send({
-        y: ycount,
-        n: ncount,
-    })
 })
 
 menuRouter.delete('/:id', async (req, res) => {

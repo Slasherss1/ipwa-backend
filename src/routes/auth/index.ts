@@ -3,7 +3,6 @@ import passport from "passport";
 import User, { userVisibleFields } from "@schemas/User";
 import { islogged } from "@/utility";
 import bcrypt from "bcryptjs"
-import cap from "@/helpers/capability";
 import usettings from "@/helpers/usettings";
 import vapidKeys from "@/vapidKeys";
 import { IVerifyOptions } from "passport-local";
@@ -80,7 +79,7 @@ authRouter.get("/check", islogged, (req, res, next) => {
             res.status(401).send({ status: 401, message: "Your account has been locked." })
         })
     }
-    res.send({ "admin": req.user.admin, "features": usettings.value.modules, "user": userVisibleFields(req.user), "menu": { "defaultItems": usettings.value.menu.defaultItems }, "vapid": vapidKeys.keys.publicKey })
+    res.send({ "admin": req.user.admin, "features": usettings.value.modules, "user": userVisibleFields(req.user), "menu": { "defaultItems": usettings.value.menu.defaultItems, "tags": usettings.value.menu.tags }, "vapid": vapidKeys.keys.publicKey })
 })
 
 authRouter.put("/redirect", islogged, async (req, res) => {
