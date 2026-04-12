@@ -9,7 +9,8 @@ export interface IUSettings {
         defaultItems: {
             sn: string[];
             kol: string[];
-        }
+        },
+        tags: any
     },
     security: {
         loginTimeout: {
@@ -47,6 +48,15 @@ class UOptions extends FileHandler<IUSettings> {
                 defaultItems: {
                     sn: value.menu.defaultItems.sn ?? [],
                     kol: value.menu.defaultItems.kol ?? []
+                },
+                tags: {
+                    sn: value.menu.tags.sn ?? [],
+                    ob: value.menu.tags.ob ?? [],
+                    kol: value.menu.tags.kol ?? [],
+                    soup: value.menu.tags.soup ?? [],
+                    cd: value.menu.tags.cd ?? [],
+                    dr: value.menu.tags.dr ?? [],
+                    other: [],
                 }
             },
             security: {
@@ -75,6 +85,15 @@ class UOptions extends FileHandler<IUSettings> {
                 defaultItems: {
                     sn: [],
                     kol: [],
+                },
+                tags: {
+                    sn: [],
+                    ob: [],
+                    kol: [],
+                    soup: [],
+                    cd: [],
+                    dr: [],
+                    other: [],
                 }
             },
             security: {
