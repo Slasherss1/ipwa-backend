@@ -20,20 +20,6 @@ appRouter.get("/news", usettings.mw(Features.News), async (req, res) => {
 })
 
 appRouter.get("/menu/:date", usettings.mw(Features.Menu), async (req, res) => {
-    // var item = await Menu.aggregate(vote(new Date(req.params.date),req.user!._id))
-    // var votes = await Vote.find({dom: new Date(req.params.date)})
-    // var grouped = votes.reduce((x, y) => {
-    //     x[y.tom].push(y)
-    //     return x
-    // }, {ob: [], kol: []})
-    // var count = {
-    //     ob: (grouped.ob.filter(v=>v.vote == "+").length / grouped.ob.length * 100).toFixed(2),
-    //     kol: (grouped.kol.filter(v=>v.vote == "+").length / grouped.kol.length * 100).toFixed(2)
-    // }
-    // var final = {
-    //     ...item[0],
-    //     stat: count
-    // }
     var final = await Menu.findOne({day: new Date(req.params.date)})
     res.send(final)
 })
